@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-pottery-ivory: #F6F2EA;
+  --color-pottery-warmwhite: #FBF8F3;
+  --color-pottery-terracotta: #A65A3A;
+  --color-pottery-deepclay: #6F3E2C;
+  --color-pottery-olive: #6E7052;
+  --color-pottery-charcoal: #2D2A27;
+  --color-pottery-sand: #D8C9B6;
+  --color-pottery-stone: #B6AB9B;
+}
+
+/* Custom scrollbar and subtle transitions */
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-sans);
+}
+
+body {
+  background-color: var(--color-pottery-warmwhite);
+  color: var(--color-pottery-charcoal);
+  overflow-x: hidden;
+}
+
+.font-editorial {
+  font-family: var(--font-serif);
+}
+
+/* Image zoom effect */
+.hover-zoom img {
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-zoom:hover img {
+  transform: scale(1.05);
+}
+

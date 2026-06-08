@@ -1,0 +1,6 @@
+{
+  "name": "POTTERY.VN",
+  "description": "Premium Vietnamese ceramic planters, decorative vases, stools, and pottery collections for homes, retailers, importers, and hospitality buyers worldwide.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
