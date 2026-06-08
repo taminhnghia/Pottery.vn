@@ -16,18 +16,82 @@ interface SignInProps {
 export default function SignIn({ language, onNavigate, onLoginAsRole }: SignInProps) {
   const t = (en: string, vi: string) => (language === 'en' ? en : vi);
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedPass = password.trim();
+
+    if (!trimmedEmail || !trimmedPass) {
+      setErrorMsg(t('Please enter both email and password.', 'Vui lòng nhập cả email và mật khẩu.'));
+      return;
+    }
+
+    // Role mapping based on input
+    if (trimmedEmail === 'admin@pottery.vn' && trimmedPass === 'admin2026') {
+      handleSelectRole('admin');
+    } else if (trimmedEmail === 'b2b@pottery.vn' && trimmedPass === 'b2b2026') {
+      handleSelectRole('approved_b2b_buyer');
+    } else if (trimmedEmail === 'retail@pottery.vn' && trimmedPass === 'retail2026') {
+      handleSelectRole('retail_customer');
+    } else if (trimmedEmail === 'pending@pottery.vn' && trimmedPass === 'pending2026') {
+      handleSelectRole('trade_applicant');
+    } else {
+      setErrorMsg(t('Invalid email address or passcode sequence. Please refer to the guidelines below.', 'Email hoặc mật khẩu bảo mật chưa đúng. Vui lòng tham khảo thông tin tài khỏan bên dưới.'));
+    }
+  };
+
   const handleSelectRole = (role: UserRole) => {
     onLoginAsRole(role);
-    alert(t(`Logged in successfully! Role mapped to: ${role.toUpperCase()}`, `Đăng nhập thành công! Vai trò đổi thành: ${role.toUpperCase()}`));
     if (role === 'admin') {
-      onNavigate('/admin'); // Redirect to admin dashboard
+      onNavigate('/'); // Redirect to primary control workspace or home
     } else {
       onNavigate('/'); // Redirect home
     }
   };
 
+  const demoAccounts = [
+    {
+      role: 'admin',
+      label: t('System Administrator', 'Trưởng Ban Quản trị'),
+      email: 'admin@pottery.vn',
+      pass: 'admin2026',
+      badge: 'ADMIN',
+      badgeColor: 'bg-rose-50 text-rose-700 border-rose-200'
+    },
+    {
+      role: 'approved_b2b_buyer',
+      label: t('Approved B2B Wholesaler', 'Đối tác sỉ đã duyệt'),
+      email: 'b2b@pottery.vn',
+      pass: 'b2b2026',
+      badge: 'B2B PARTNER',
+      badgeColor: 'bg-blue-50 text-blue-700 border-blue-200'
+    },
+    {
+      role: 'retail_customer',
+      label: t('Retail Customer', 'Người mua lẻ cá nhân'),
+      email: 'retail@pottery.vn',
+      pass: 'retail2026',
+      badge: 'RETAIL',
+      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    },
+    {
+      role: 'trade_applicant',
+      label: t('Pending B2B Applicant', 'Đối tác sỉ chờ duyệt'),
+      email: 'pending@pottery.vn',
+      pass: 'pending2026',
+      badge: 'PENDING B2B',
+      badgeColor: 'bg-amber-50 text-amber-700 border-amber-200'
+    }
+  ];
+
   return (
-    <div className="max-w-md mx-auto px-4 py-16 space-y-8">
+    <div className="max-w-md mx-auto px-4 py-12 space-y-8">
       
       {/* Editorial Heading */}
       <div className="text-center space-y-2">
@@ -36,52 +100,89 @@ export default function SignIn({ language, onNavigate, onLoginAsRole }: SignInPr
         </div>
         <h1 className="text-2xl font-serif text-pottery-charcoal">{t('Sourcing Portal Sign In', 'Đăng Nhập Cổng Sourcing')}</h1>
         <p className="text-xs text-stone-500 max-w-xs mx-auto">
-          {t('Select your credentials layout below to experience role-restricted content immediately.', 'Lựa chọn tư cách thành viên dưới đây để trải nghiệm nhanh không gian hạn chế giá sỉ.')}
+          {t('Authenticate using security credentials to explore role-restricted pricing tier and tools.', 'Xác thực thông tin tài khoản bảo mật để truy cập bảng giá và tài nguyên chuyên biệt.')}
         </p>
       </div>
 
-      {/* Select buttons stack */}
-      <div className="space-y-4">
+      {/* Actual login form */}
+      <form onSubmit={handleSubmit} className="bg-white border border-stone-200 p-6 rounded shadow-xs space-y-4">
         
-        <button
-          onClick={() => handleSelectRole('retail_customer')}
-          className="w-full text-left bg-white hover:bg-stone-50 border border-stone-200 p-4 rounded-lg flex items-center gap-4 hover:shadow-xs transition duration-200 cursor-pointer"
-        >
-          <div className="w-10 h-10 bg-emerald-50 text-emerald-700 rounded-full flex items-center justify-center shrink-0">
-            <UserCheck size={18} />
+        {errorMsg && (
+          <div className="bg-rose-50 border border-rose-150 p-3 rounded text-xs text-rose-700 font-mono">
+            ⚠️ {errorMsg}
           </div>
-          <div>
-            <strong className="text-xs text-stone-850 block">{t('Sign In as Private Retail Buyer', 'Đăng nhập Mua lẻ / Cá nhân')}</strong>
-            <span className="text-[10px] text-stone-400 font-mono tracking-wider">RETAIL_CUSTOMER PRIVILEGES</span>
-          </div>
-        </button>
+        )}
+
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-mono font-bold text-stone-400 uppercase tracking-widest block">
+            {t('Business Email Address', 'MÃ EMAIL DOANH NGHIỆP / CÁ NHÂN')}
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="e.g., mail@pottery.vn"
+            className="w-full border border-stone-250 p-2.5 rounded text-xs focus:outline-none focus:border-pottery-terracotta text-stone-850"
+            required
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-mono font-bold text-stone-400 uppercase tracking-widest block">
+            {t('Security Passcode', 'MẬT KHẨU TRUY CẬP')}
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            className="w-full border border-stone-250 p-2.5 rounded text-xs focus:outline-none focus:border-pottery-terracotta text-stone-850"
+            required
+          />
+        </div>
 
         <button
-          onClick={() => handleSelectRole('approved_b2b_buyer')}
-          className="w-full text-left bg-white hover:bg-stone-50 border border-stone-200 p-4 rounded-lg flex items-center gap-4 hover:shadow-xs transition duration-200 cursor-pointer"
+          type="submit"
+          className="w-full bg-pottery-charcoal hover:bg-black text-white py-3 text-xs uppercase tracking-widest font-semibold transition text-center mt-2 cursor-pointer"
         >
-          <div className="w-10 h-10 bg-blue-50 text-blue-700 rounded-full flex items-center justify-center shrink-0">
-            <Shield size={18} />
-          </div>
-          <div>
-            <strong className="text-xs text-stone-850 block">{t('Sign In as Trade Wholesaler', 'Đăng nhập Đối tác sỉ / Doanh nghiệp')}</strong>
-            <span className="text-[10px] text-stone-400 font-mono tracking-wider">APPROVED_B2B_BUYER PRIVILEGES</span>
-          </div>
+          {t('Sign In', 'Đăng Nhập Hệ Thống')}
         </button>
 
-        <button
-          onClick={() => handleSelectRole('admin')}
-          className="w-full text-left bg-white hover:bg-stone-50 border border-stone-200 p-4 rounded-lg flex items-center gap-4 hover:shadow-xs transition duration-200 cursor-pointer"
-        >
-          <div className="w-10 h-10 bg-rose-50 text-rose-700 rounded-full flex items-center justify-center shrink-0">
-            <Shield size={18} />
-          </div>
-          <div>
-            <strong className="text-xs text-stone-850 block">{t('Sign In as System Administrator', 'Đăng nhập vai Trưởng Ban Quản trị')}</strong>
-            <span className="text-[10px] text-stone-400 font-mono tracking-wider">ADMIN PRIVILEGES WORKSPACE</span>
-          </div>
-        </button>
+      </form>
 
+      {/* Demo Credentials Guidance Board */}
+      <div className="border border-stone-150 bg-stone-50/70 p-5 rounded space-y-4">
+        <div className="space-y-1">
+          <h3 className="text-xs font-bold text-stone-800 uppercase tracking-wider font-mono">
+            {t('🔒 Verified Demo Credentials', '🔒 THÔNG TIN TÀI KHOẢN TRUY CẬP')}
+          </h3>
+          <p className="text-[10px] text-stone-400 font-mono uppercase">
+            {t('Please copy and paste the details below into the form inputs:', 'Hình mẫu tài khoản liên kết được cấu dịch sẵn:')}
+          </p>
+        </div>
+
+        <div className="divide-y divide-stone-200/60 text-xs">
+          {demoAccounts.map((acc) => (
+            <div key={acc.role} className="py-2.5 first:pt-0 last:pb-0 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-stone-805 select-text">{acc.label}</span>
+                <span className={`text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border ${acc.badgeColor}`}>
+                  {acc.badge}
+                </span>
+              </div>
+              <div className="flex flex-col gap-0.5 font-mono text-[10px] text-stone-500">
+                <div className="flex justify-between">
+                  <span>Email:</span>
+                  <span className="font-bold text-stone-700 select-all">{acc.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Pass:</span>
+                  <span className="font-bold text-stone-700 select-all">{acc.pass}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="text-center pt-4 border-t border-stone-100 space-y-3">

@@ -238,23 +238,14 @@ export default function Navbar({
               {t('Shop', 'Cửa hàng')}
             </button>
 
-            {/* B2B Buyers link */}
             <button onClick={() => onNavigate('/trade')} className={linkClass('/trade')}>
-              {t('For Trade Buyers', 'Đối tác B2B')}
+              {t('B2B Trade', 'Đối tác B2B')}
             </button>
 
             <span className="h-4 w-px bg-stone-200"></span>
 
             <button onClick={() => onNavigate('/export-capabilities')} className={linkClass('/export-capabilities')}>
-              {t('Export Capabilities', 'Năng lực xuất khẩu')}
-            </button>
-
-            <button onClick={() => onNavigate('/custom-development')} className={linkClass('/custom-development')}>
-              {t('Custom Dev', 'Chế tác riêng')}
-            </button>
-
-            <button onClick={() => onNavigate('/inspiration')} className={linkClass('/inspiration')}>
-              {t('Inspiration', 'Ý tưởng')}
+              {t('Capabilities & OEM', 'Năng lực & Chế tác')}
             </button>
 
             <button onClick={() => onNavigate('/about-us')} className={linkClass('/about-us')}>
@@ -387,57 +378,39 @@ export default function Navbar({
           <nav className="flex flex-col gap-3 text-sm font-semibold">
             <button
               onClick={() => { onNavigate('/products'); setMobileMenuOpen(false); }}
-              className="text-left py-1 text-stone-800 hover:text-pottery-terracotta border-b border-stone-50 pb-1"
+              className="text-left py-1.5 text-stone-805 hover:text-pottery-terracotta border-b border-stone-100 pb-1.5 text-xs tracking-wider uppercase font-medium"
             >
-              {t('All Products', 'Toàn bộ sản phẩm')}
+              {t('Products', 'Sản phẩm')}
             </button>
             <button
               onClick={() => { onNavigate('/collections'); setMobileMenuOpen(false); }}
-              className="text-left py-1 text-stone-800 hover:text-pottery-terracotta border-b border-stone-50 pb-1"
+              className="text-left py-1.5 text-stone-805 hover:text-pottery-terracotta border-b border-stone-100 pb-1.5 text-xs tracking-wider uppercase font-medium"
             >
-              {t('Pottery Collections', 'Các Bộ sưu tập')}
+              {t('Collections', 'Bộ sưu tập')}
             </button>
             <button
               onClick={() => { onNavigate('/shop'); setMobileMenuOpen(false); }}
-              className="text-left py-1 text-stone-800 hover:text-pottery-terracotta border-b border-stone-50 pb-1"
+              className="text-left py-1.5 text-stone-805 hover:text-pottery-terracotta border-b border-stone-100 pb-1.5 text-xs tracking-wider uppercase font-medium"
             >
-              {t('Retail Shop', 'Cửa hàng bán lẻ')}
+              {t('Retail Shop', 'Cửa hàng')}
             </button>
             <button
               onClick={() => { onNavigate('/trade'); setMobileMenuOpen(false); }}
-              className="text-left py-1 text-stone-800 hover:text-pottery-terracotta border-b border-stone-50 pb-1"
+              className="text-left py-1.5 text-stone-805 hover:text-pottery-terracotta border-b border-stone-100 pb-1.5 text-xs tracking-wider uppercase font-medium"
             >
-              {t('Trade & Export Portal', 'Dành cho đối tác B2B')}
+              {t('B2B Trade', 'Đối tác B2B')}
             </button>
             <button
               onClick={() => { onNavigate('/export-capabilities'); setMobileMenuOpen(false); }}
-              className="text-left py-1 text-stone-800 hover:text-pottery-terracotta border-b border-stone-50 pb-1"
+              className="text-left py-1.5 text-stone-805 hover:text-pottery-terracotta border-b border-stone-100 pb-1.5 text-xs tracking-wider uppercase font-medium"
             >
-              {t('Export Capabilities', 'Năng lực xuất khẩu')}
-            </button>
-            <button
-              onClick={() => { onNavigate('/custom-development'); setMobileMenuOpen(false); }}
-              className="text-left py-1 text-stone-800 hover:text-pottery-terracotta border-b border-stone-50 pb-1"
-            >
-              {t('Custom Pottery Brief', 'Sản xuất gốm theo yêu cầu')}
-            </button>
-            <button
-              onClick={() => { onNavigate('/inspiration'); setMobileMenuOpen(false); }}
-              className="text-left py-1 text-stone-800 hover:text-pottery-terracotta border-b border-stone-50 pb-1"
-            >
-              {t('Inspiration Gallery', 'Ý tưởng kiến trúc')}
+              {t('Capabilities & OEM', 'Năng lực & Chế tác')}
             </button>
             <button
               onClick={() => { onNavigate('/about-us'); setMobileMenuOpen(false); }}
-              className="text-left py-1 text-stone-800 hover:text-pottery-terracotta border-b border-stone-50 pb-1"
+              className="text-left py-1.5 text-stone-805 hover:text-pottery-terracotta pb-1.5 text-xs tracking-wider uppercase font-medium"
             >
-              {t('About Vietnam Ceramics', 'Về Vietnam Ceramics')}
-            </button>
-            <button
-              onClick={() => { onNavigate('/contact'); setMobileMenuOpen(false); }}
-              className="text-left py-1 text-stone-800 hover:text-pottery-terracotta pb-1"
-            >
-              {t('Contact Us', 'Liên hệ chúng tôi')}
+              {t('About Us', 'Về chúng tôi')}
             </button>
 
             {currentRole === 'admin' && (
