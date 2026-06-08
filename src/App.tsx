@@ -10,6 +10,7 @@ import { generateAllProducts } from './data/products';
 import RoleSimulator from './components/RoleSimulator';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ExitIntentModal from './components/ExitIntentModal';
 
 import Home from './pages/Home';
 import Products from './pages/Products';
@@ -200,7 +201,7 @@ export default function App() {
     email: string;
     dateSubscribed: string;
     status: 'Active' | 'Unsubscribed';
-    source: 'Home' | 'Footer' | 'Catalog Download' | 'Manual Registration';
+    source: 'Home' | 'Footer' | 'Catalog Download' | 'Manual Registration' | 'Exit Intent';
   }[]>([
     { id: 'SUB-01', email: 'architect@luxespaces.co', dateSubscribed: '2026-05-12', status: 'Active', source: 'Home' },
     { id: 'SUB-02', email: 'sourcing@homepots.com', dateSubscribed: '2026-05-20', status: 'Active', source: 'Catalog Download' },
@@ -318,9 +319,65 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [currentPath]);
 
+  // Exit Intent Modal states for retail users leaving the home page
+  const [isExitIntentModalOpen, setIsExitIntentModalOpen] = useState<boolean>(false);
+  const [pendingRedirectPath, setPendingRedirectPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    const isRetail = currentRole === 'retail_customer';
+    if (currentPath !== '/' || !isRetail) return;
+
+    const alreadyPrompted = sessionStorage.getItem('pottery_exit_intent_prompted') === 'true';
+    if (alreadyPrompted) return;
+
+    const handleMouseLeave = (e: MouseEvent) => {
+      // Trigger if mouse leaves top of screen
+      if (e.clientY < 15) {
+        setIsExitIntentModalOpen(true);
+        sessionStorage.setItem('pottery_exit_intent_prompted', 'true');
+      }
+    };
+
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => {
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [currentPath, currentRole]);
+
+  const handleCloseExitIntentModal = (proceedWithNavigation = true) => {
+    setIsExitIntentModalOpen(false);
+    if (proceedWithNavigation && pendingRedirectPath) {
+      setCurrentPath(pendingRedirectPath);
+      setPendingRedirectPath(null);
+    } else {
+      setPendingRedirectPath(null);
+    }
+  };
+
+  const handleSubscribeExitIntent = (emailInput: string) => {
+    const newSub = {
+      id: `SUB-${Date.now()}`,
+      email: emailInput,
+      dateSubscribed: new Date().toISOString().split('T')[0],
+      status: 'Active' as const,
+      source: 'Exit Intent' as const,
+    };
+    setNewsletterSubscribers(prev => [newSub, ...prev]);
+  };
+
   // Handle page path triggers
   const executeNavigation = (path: string) => {
-    setCurrentPath(path);
+    const isRetail = currentRole === 'retail_customer';
+    const isLeavingHomeWithRetail = currentPath === '/' && path !== '/' && isRetail;
+    const alreadyPrompted = sessionStorage.getItem('pottery_exit_intent_prompted') === 'true';
+
+    if (isLeavingHomeWithRetail && !alreadyPrompted) {
+      setPendingRedirectPath(path);
+      setIsExitIntentModalOpen(true);
+      sessionStorage.setItem('pottery_exit_intent_prompted', 'true');
+    } else {
+      setCurrentPath(path);
+    }
   };
 
   // Logout callback
@@ -493,6 +550,14 @@ export default function App() {
           totalInquiriesCount={totalInquiriesCount}
         />
       )}
+
+      <ExitIntentModal
+        language={language}
+        isOpen={isExitIntentModalOpen}
+        onClose={handleCloseExitIntentModal}
+        onSubscribe={handleSubscribeExitIntent}
+        isPendingNavigation={!!pendingRedirectPath}
+      />
 
       {/* Styled Headroom headers */}
       <Navbar

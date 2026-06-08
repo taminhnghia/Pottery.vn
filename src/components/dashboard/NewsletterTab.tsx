@@ -6,7 +6,7 @@ interface Subscriber {
   email: string;
   dateSubscribed: string;
   status: 'Active' | 'Unsubscribed';
-  source: 'Home' | 'Footer' | 'Catalog Download' | 'Manual Registration';
+  source: 'Home' | 'Footer' | 'Catalog Download' | 'Manual Registration' | 'Exit Intent';
 }
 
 interface NewsletterTabProps {
