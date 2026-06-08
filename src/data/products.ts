@@ -131,49 +131,75 @@ export function generateAllProducts(): Product[] {
     let imgs: string[] = [];
     let lImg = '';
 
+    // We want 5 detailed, changeable images for each product
+    let firstImg = '';
+    let secondImg = '';
+    let thirdImg = 'https://images.unsplash.com/photo-1610398061401-44af649d2dd8?auto=format&fit=crop&w=800&q=80'; // Glaze closeup
+    let fourthImg = 'https://images.unsplash.com/photo-1581078426770-6d336e5de7bf?auto=format&fit=crop&w=800&q=80'; // Artisan clay hand-drawn workshop
+    let fifthImg = 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&w=800&q=80'; // Pottery inspection stack / packing
+
     if (category === 'Outdoor Planters') {
       dims = `Ø ${45 + (i % 5) * 8}cm x H ${60 + (i % 4) * 15}cm`;
       app = 'Gardens, Terraces, Patios, Courtyards, Hotel Exterior';
       inOut = 'Outdoor Use';
       colName = i % 2 === 0 ? 'Garden & Landscape Collection' : 'Hospitality Selection';
-      imgs = [IMAGES.planters[i % IMAGES.planters.length], IMAGES.vases[i % IMAGES.vases.length]];
+      firstImg = IMAGES.planters[i % IMAGES.planters.length];
+      secondImg = IMAGES.planters[(i + 1) % IMAGES.planters.length];
       lImg = IMAGES.large[i % IMAGES.large.length];
     } else if (category === 'Indoor Pots') {
       dims = `Ø ${20 + (i % 4) * 5}cm x H ${25 + (i % 3) * 8}cm`;
       app = 'Living Rooms, Hallways, Fireplace Accents, Shelves';
       inOut = 'Indoor Use';
       colName = 'Interior Decorative Collection';
-      imgs = [IMAGES.planters[(i + 2) % IMAGES.planters.length], IMAGES.vases[(i + 1) % IMAGES.vases.length]];
+      firstImg = IMAGES.planters[(i + 2) % IMAGES.planters.length];
+      secondImg = IMAGES.planters[(i + 3) % IMAGES.planters.length];
       lImg = IMAGES.planters[3];
     } else if (category === 'Decorative Vases') {
       dims = `D ${18 + (i % 3) * 6}cm x H ${35 + (i % 5) * 10}cm`;
       app = 'Table decor, Sideboards, Boutique Living Rooms, Retail Shelves';
       inOut = 'Indoor & Covered Outdoor';
       colName = i % 2 === 0 ? 'Interior Decorative Collection' : 'Sculptural Objects Collection';
-      imgs = [IMAGES.vases[i % IMAGES.vases.length], IMAGES.planters[(i + 4) % IMAGES.planters.length]];
+      firstImg = IMAGES.vases[i % IMAGES.vases.length];
+      secondImg = IMAGES.vases[(i + 1) % IMAGES.vases.length];
       lImg = IMAGES.vases[2];
     } else if (category === 'Ceramic Stools') {
       dims = `Ø 35cm x H 46cm (Standard Patio Size)`;
       app = 'Balconies, Garden Seating, Living Accents, Resort Terraces';
       inOut = 'Indoor & Outdoor';
       colName = 'Hospitality Selection';
-      imgs = [IMAGES.stools[i % IMAGES.stools.length], IMAGES.planters[(i + 1) % IMAGES.planters.length]];
+      firstImg = IMAGES.stools[i % IMAGES.stools.length];
+      secondImg = IMAGES.stools[(i + 1) % IMAGES.stools.length];
       lImg = IMAGES.stools[0];
     } else if (category === 'Decorative Objects') {
       dims = `W ${15 + (i % 4) * 5}cm x L ${15 + (i % 4) * 5}cm x H ${20 + (i % 3) * 10}cm`;
       app = 'Decorative shelving, hotel lobbies, boutique design accents';
       inOut = 'Indoor Decorative';
       colName = 'Sculptural Objects';
-      imgs = [IMAGES.vases[(i + 3) % IMAGES.vases.length], IMAGES.stools[i % IMAGES.stools.length]];
+      firstImg = IMAGES.vases[(i + 3) % IMAGES.vases.length];
+      secondImg = IMAGES.stools[i % IMAGES.stools.length];
       lImg = IMAGES.vases[1];
     } else {
       dims = `Ø ${70 + (i % 3) * 15}cm x H ${110 + (i % 3) * 20}cm`;
       app = 'Luxury Villa Entrances, Public Architectural Landscapes, Resorts';
       inOut = 'Heavy-Duty Outdoor';
       colName = 'Garden & Landscape Collection';
-      imgs = [IMAGES.large[i % IMAGES.large.length], IMAGES.planters[i % IMAGES.planters.length]];
+      firstImg = IMAGES.large[i % IMAGES.large.length];
+      secondImg = IMAGES.large[(i + 1) % IMAGES.large.length];
       lImg = IMAGES.large[2];
     }
+
+    const indexVar = i % 3;
+    if (indexVar === 1) {
+      thirdImg = 'https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&w=800&q=80'; // Contemporary vessels
+      fourthImg = 'https://images.unsplash.com/photo-1565192647048-f997ded87958?auto=format&fit=crop&w=800&q=80'; // Clay shaping details
+      fifthImg = 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=800&q=80'; // Wood pallets
+    } else if (indexVar === 2) {
+      thirdImg = 'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=800&q=80'; // Vase texture
+      fourthImg = 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80'; // Pottery workshop backdrop
+      fifthImg = 'https://images.unsplash.com/photo-1473186578172-c141e6798cf4?auto=format&fit=crop&w=800&q=80'; // Storage background
+    }
+
+    imgs = [firstImg, secondImg, thirdImg, fourthImg, fifthImg];
 
     return { fin, col, mat, dims, app, inOut, colName, imgs, lImg };
   };

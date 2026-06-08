@@ -810,6 +810,8 @@ export default function App() {
             onClearCart={handleClearCart}
             onClearInquiry={handleClearInquiry}
             onSubmitInquiry={handleSubmitInquiry}
+            registeredUsers={registeredUsers}
+            setRegisteredUsers={setRegisteredUsers}
           />
         )}
 
@@ -832,6 +834,8 @@ export default function App() {
             onClearCart={handleClearCart}
             onClearInquiry={handleClearInquiry}
             onSubmitInquiry={handleSubmitInquiry}
+            registeredUsers={registeredUsers}
+            setRegisteredUsers={setRegisteredUsers}
           />
         )}
 
