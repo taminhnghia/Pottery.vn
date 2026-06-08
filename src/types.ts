@@ -84,6 +84,28 @@ export interface Product {
   specificationSheetFile?: string;
   sampleAvailable?: boolean;
   samplePrice?: number;
+  sizes?: SizeOption[];
+  sets?: SetOption[];
+}
+
+export interface SizeOption {
+  name: string;
+  dimensions: string;
+  priceFactor: number;
+}
+
+export interface SetOption {
+  name: string;
+  qty: number;
+  priceFactor: number;
+}
+
+export interface CartItem {
+  id: string;
+  product: Product;
+  qty: number;
+  selectedSize?: SizeOption;
+  selectedSet?: SetOption;
 }
 
 export interface InquiryItem {
@@ -151,3 +173,33 @@ export interface CustomDevelopmentBrief {
   customizationDetails: string;
   status: string;
 }
+
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  sku: string;
+  image: string;
+  quantity: number;
+  price: number;
+}
+
+export interface Order {
+  id: string;
+  customerId: string;
+  customerName: string;
+  customerEmail: string;
+  orderType: 'Retail' | 'B2B Wholesale';
+  orderDate: string;
+  items: OrderItem[];
+  totalAmount: number;
+  paidAmount: number;
+  paymentStatus: 'Unpaid' | 'Deposit Paid 30%' | 'Fully Paid' | 'Refunded';
+  paymentMethod: 'TT (Telegraphic Transfer)' | 'L/C (Letter of Credit)' | 'Direct Bank Transfer' | 'Cash on Delivery';
+  deliveryStatus: 'Clay Forming' | 'Kiln Firing' | 'Quality Inspecting' | 'Custom Crating' | 'Out for Delivery / Port FOB' | 'Shipping Transit' | 'Delivered';
+  deliveryDate: string;
+  carrierName?: string;
+  trackingCode?: string;
+  shippingAddress: string;
+  notes?: string;
+}
+

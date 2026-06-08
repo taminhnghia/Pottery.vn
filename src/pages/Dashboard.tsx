@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Product, TradeApplication, CustomDevelopmentBrief, UserRole, User } from '../types';
+import { Product, TradeApplication, CustomDevelopmentBrief, UserRole, User, Order } from '../types';
 import { 
   ShieldAlert, Users, TrendingUp, Sliders, CheckCircle2, Lock, Save, Trash2, 
   Plus, Edit, Search, Filter, Layers, Briefcase, RefreshCw, Eye, X, Check,
@@ -14,6 +14,7 @@ import {
 import CatalogTab from '../components/dashboard/CatalogTab';
 import CustomersTab from '../components/dashboard/CustomersTab';
 import NewsletterTab from '../components/dashboard/NewsletterTab';
+import OrdersTab from '../components/dashboard/OrdersTab';
 
 interface DashboardProps {
   language: 'en' | 'vi';
@@ -21,6 +22,8 @@ interface DashboardProps {
   products: Product[];
   tradeApplications: TradeApplication[];
   customBriefs: CustomDevelopmentBrief[];
+  orders: Order[];
+  setOrders: React.Dispatch<React.SetStateAction<Order[]>>;
   onNavigate: (path: string) => void;
   onApproveApplication: (id: string) => void;
   onRejectApplication: (id: string) => void;
@@ -46,7 +49,7 @@ interface DashboardProps {
   }[]>>;
 }
 
-type AdminTab = 'overview' | 'products' | 'catalog' | 'wholesalers' | 'custom_briefs' | 'customers' | 'newsletter' | 'system';
+type AdminTab = 'overview' | 'products' | 'catalog' | 'wholesalers' | 'custom_briefs' | 'customers' | 'newsletter' | 'orders' | 'system';
 
 export default function Dashboard({
   language,
@@ -54,6 +57,8 @@ export default function Dashboard({
   products,
   tradeApplications,
   customBriefs,
+  orders,
+  setOrders,
   onNavigate,
   onApproveApplication,
   onRejectApplication,
@@ -415,6 +420,16 @@ export default function Dashboard({
           🎨 {t('OEM Custom R&D Queue', 'Gia công & Chế tác OEM')} ({customBriefs.length})
         </button>
         <button
+          onClick={() => setActiveTab('orders')}
+          className={`px-4 py-3 text-xs uppercase font-mono tracking-wider font-bold shrink-0 border-b-2 transition ${
+            activeTab === 'orders' 
+              ? 'border-pottery-terracotta text-pottery-terracotta bg-pottery-ivory/30' 
+              : 'border-transparent text-stone-500 hover:text-stone-850 hover:bg-stone-50'
+          }`}
+        >
+          🛒 {t('Orders & Deliveries', 'Đơn hàng & Giao vận')} ({orders.length})
+        </button>
+        <button
           onClick={() => setActiveTab('system')}
           className={`px-4 py-3 text-xs uppercase font-mono tracking-wider font-bold shrink-0 border-b-2 transition ${
             activeTab === 'system' 
@@ -574,6 +589,16 @@ export default function Dashboard({
           language={language}
           newsletterSubscribers={newsletterSubscribers}
           setNewsletterSubscribers={setNewsletterSubscribers}
+        />
+      )}
+
+      {activeTab === 'orders' && (
+        <OrdersTab
+          language={language}
+          orders={orders}
+          setOrders={setOrders}
+          products={products}
+          registeredUsers={registeredUsers}
         />
       )}
 

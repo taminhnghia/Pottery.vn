@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
-import { Product, UserRole } from '../types';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Product, UserRole, SizeOption, SetOption } from '../types';
 import { Search, Filter, HelpCircle, Shield, Sliders, ChevronRight, Lock, Sparkles } from 'lucide-react';
 
 interface ProductsProps {
@@ -12,6 +12,7 @@ interface ProductsProps {
   language: 'en' | 'vi';
   currentRole: UserRole;
   onNavigate: (path: string) => void;
+  onAddToCart?: (product: Product, size?: SizeOption, set?: SetOption) => void;
   onAddToInquiry: (product: Product) => void;
   onSaveProduct: (product: Product) => void;
   isSaved: (product: Product) => boolean;
@@ -24,6 +25,7 @@ export default function Products({
   language,
   currentRole,
   onNavigate,
+  onAddToCart,
   onAddToInquiry,
   onSaveProduct,
   isSaved,
@@ -125,6 +127,29 @@ export default function Products({
     if (!selectedProductSKU) return null;
     return products.find(p => p.SKU === selectedProductSKU) || null;
   }, [products, selectedProductSKU]);
+
+  // Selected configuration states for size and set / packaging
+  const [selectedSizeOpt, setSelectedSizeOpt] = useState<SizeOption | null>(null);
+  const [selectedSetOpt, setSelectedSetOpt] = useState<SetOption | null>(null);
+
+  // Sync selected options when activeProduct changes
+  useEffect(() => {
+    if (activeProduct) {
+      if (activeProduct.sizes && activeProduct.sizes.length > 0) {
+        setSelectedSizeOpt(activeProduct.sizes[0]);
+      } else {
+        setSelectedSizeOpt(null);
+      }
+      if (activeProduct.sets && activeProduct.sets.length > 0) {
+        setSelectedSetOpt(activeProduct.sets[0]);
+      } else {
+        setSelectedSetOpt(null);
+      }
+    } else {
+      setSelectedSizeOpt(null);
+      setSelectedSetOpt(null);
+    }
+  }, [activeProduct]);
 
   // Pricing helper based on user roles
   const renderPricingBlock = (product: Product) => {
@@ -634,6 +659,124 @@ export default function Products({
                 </tbody>
               </table>
 
+              {/* Dynamic Size Option Selector Component */}
+              {activeProduct.sizes && activeProduct.sizes.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-mono font-bold text-stone-400 uppercase tracking-widest">
+                      {t('Select Size Specification', 'CHỌN DÒNG KÍCH THƯỚC')}
+                    </span>
+                    {selectedSizeOpt && (
+                      <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-1.5 py-0.5 rounded">
+                        📐 {selectedSizeOpt.dimensions}
+                      </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {activeProduct.sizes.map((size) => {
+                      const isSelected = selectedSizeOpt?.name === size.name;
+                      return (
+                        <button
+                          key={size.name}
+                          type="button"
+                          onClick={() => setSelectedSizeOpt(size)}
+                          className={`text-center py-2 px-1 border transition rounded-sm font-mono text-xs ${
+                            isSelected
+                              ? 'border-pottery-terracotta bg-pottery-terracotta/5 text-pottery-terracotta font-bold'
+                              : 'border-stone-200 text-stone-600 hover:border-stone-400 bg-white'
+                          }`}
+                        >
+                          <div>{size.name}</div>
+                          <span className="text-[9px] text-stone-400 font-light block mt-0.5">
+                            f: ×{size.priceFactor.toFixed(1)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Dynamic Set Package Options */}
+              {activeProduct.sets && activeProduct.sets.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-mono font-bold text-stone-400 uppercase tracking-widest">
+                      {t('Select Set Packaging', 'CHỌN SỐ LƯỢNG SET ĐÓNG GÓI')}
+                    </span>
+                    {selectedSetOpt && selectedSetOpt.qty > 1 && (
+                      <span className="text-[9px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200/55 px-1.5 py-0.5 rounded font-bold animate-pulse">
+                        ⭐ {t('Value Package Savings!', 'Tiết kiệm theo bộ!')}
+                      </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {activeProduct.sets.map((sett) => {
+                      const isSelected = selectedSetOpt?.name === sett.name;
+                      return (
+                        <button
+                          key={sett.name}
+                          type="button"
+                          onClick={() => setSelectedSetOpt(sett)}
+                          className={`text-center py-2 px-1 border transition rounded-sm font-mono text-xs ${
+                            isSelected
+                              ? 'border-pottery-terracotta bg-pottery-terracotta/5 text-pottery-terracotta font-bold'
+                              : 'border-stone-200 text-stone-600 hover:border-stone-400 bg-white'
+                          }`}
+                        >
+                          <div>{sett.name}</div>
+                          <span className="text-[9px] text-stone-400 font-light block mt-0.5">
+                            Q: {sett.qty}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Highly interactive Real-time Live Price Calculator */}
+              <div className="bg-stone-50 border border-stone-150 p-4 rounded-sm space-y-1.5 bg-gradient-to-r from-stone-50 via-white to-orange-50/10">
+                <div className="flex justify-between items-start text-[11px] text-stone-500">
+                  <span>{t('Active Configuration:', 'Nhóm quy cách đã chọn:')}</span>
+                  <span className="text-stone-850 font-mono font-bold text-right max-w-[200px] line-clamp-1">
+                    {selectedSizeOpt?.name || 'Standard'} • {selectedSetOpt?.name || 'Single Bag'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-end pt-2 border-t border-stone-200/60">
+                  <span className="text-[9px] uppercase font-mono font-bold text-stone-400 tracking-wider">
+                    {t('Dynamic Output Price:', 'Giá thực tế ước lượng:')}
+                  </span>
+                  <div className="text-right">
+                    {currentRole === 'retail_customer' || currentRole === 'guest' ? (
+                      activeProduct.retailPrice ? (
+                        <div>
+                          <span className="text-lg sm:text-xl font-mono font-bold text-pottery-charcoal">
+                            US$ {((activeProduct.retailPrice) * (selectedSizeOpt?.priceFactor ?? 1.0) * (selectedSetOpt?.priceFactor ?? 1.0)).toFixed(2)}
+                          </span>
+                          {selectedSetOpt && selectedSetOpt.qty > 1 && (
+                            <div className="text-[9px] text-stone-400 font-mono">
+                              ≈ US$ {(((activeProduct.retailPrice) * (selectedSizeOpt?.priceFactor ?? 1.0) * (selectedSetOpt?.priceFactor ?? 1.0)) / selectedSetOpt.qty).toFixed(2)} / {t('piece', 'chậu')}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs font-bold text-pottery-terracotta uppercase">{t('Upon Enquiry', 'Giá: Liên hệ')}</span>
+                      )
+                    ) : (
+                      <div>
+                        <span className="text-lg sm:text-xl font-mono font-bold text-pottery-charcoal">
+                          US$ {((activeProduct.fobPriceTier1 || 15) * (selectedSizeOpt?.priceFactor ?? 1.0) * (selectedSetOpt?.priceFactor ?? 1.0)).toFixed(2)}
+                        </span>
+                        <span className="text-[9px] text-stone-500 font-mono block">
+                          {t('Est. FOB Cargo Trade Pool Price', 'Giá xuất sỉ ước tính (Cảng VN)')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Customization Note */}
               <div className="space-y-1 bg-stone-50 p-3 rounded text-[11px] text-stone-500">
                 <span className="font-bold text-stone-700 block uppercase tracking-wider font-mono text-[9px]">{t('Private label & OEM customization', 'Gia công nhãn riêng OEM')}</span>
@@ -643,12 +786,16 @@ export default function Products({
               <div className="flex gap-4 pt-2">
                 <button
                   onClick={() => {
-                    onAddToInquiry(activeProduct);
+                    if ((currentRole === 'retail_customer' || currentRole === 'guest') && onAddToCart) {
+                      onAddToCart(activeProduct, selectedSizeOpt || undefined, selectedSetOpt || undefined);
+                    } else {
+                      onAddToInquiry(activeProduct);
+                    }
                     setSelectedProductSKU(null);
                   }}
                   className="flex-1 bg-pottery-terracotta hover:bg-pottery-deepclay text-white py-3 text-xs uppercase tracking-widest font-semibold transition text-center"
                 >
-                  {currentRole === 'retail_customer' ? t('Add to Shopping Cart', 'Thêm vào giỏ hàng') : t('Add to B2B Inquiry List', 'Thêm vào Thư mục RFQ B2B')}
+                  {currentRole === 'retail_customer' || currentRole === 'guest' ? t('Add to Shopping Cart', 'Thêm vào giỏ hàng') : t('Add to B2B Inquiry List', 'Thêm vào Thư mục RFQ B2B')}
                 </button>
                 <button
                   onClick={() => onSaveProduct(activeProduct)}

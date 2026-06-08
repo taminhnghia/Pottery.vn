@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Product } from '../types';
+import { Product, SizeOption, SetOption } from '../types';
 
 // Let's declare professional placeholder photos from Unsplash of high-end pottery, clean clay, garden settings, and luxury resorts
 const IMAGES = {
@@ -78,6 +78,42 @@ const LARGE_GARDEN_NAMES = [
 const FINISHES = ['Natural Clay', 'Matte Glaze', 'High-Gloss Reactive Glaze', 'Rustic Textured Earth', 'Sandblasted Stone'];
 const COLOURS = ['Terracotta Ochre', 'Warm Sand', 'Linen White', 'Charcoal Slate', 'Natural Olive', 'Reactive Emerald'];
 const MATERIALS = ['Vietnamese Red Clay', 'Châm Glazed Stoneware', 'Coarse Sand Earthenware', 'High-Fire Stoneware'];
+
+export const getSizesForProduct = (category: string, baseDims: string): SizeOption[] => {
+  if (category === 'Ceramic Stools') {
+    return [
+      { name: 'Standard Seat (M)', dimensions: 'Ø 35cm x H 46cm', priceFactor: 1.0 },
+      { name: 'Oversized Patio Stool (L)', dimensions: 'Ø 42cm x H 52cm', priceFactor: 1.35 }
+    ];
+  }
+  if (category === 'Decorative Objects') {
+    return [
+      { name: 'Miniature Accent (S)', dimensions: 'W 10cm x L 10cm x H 12cm', priceFactor: 0.65 },
+      { name: 'Gallery Standard (M)', dimensions: baseDims, priceFactor: 1.0 },
+      { name: 'Foyer Exhibition Size (L)', dimensions: 'W 30cm x L 30cm x H 45cm', priceFactor: 2.2 }
+    ];
+  }
+  
+  return [
+    { name: 'Accent Small (S)', dimensions: 'Ø 18cm x H 22cm', priceFactor: 0.70 },
+    { name: 'Lobby Medium (M)', dimensions: baseDims, priceFactor: 1.0 },
+    { name: 'Grand Mansion (L)', dimensions: 'Ø 55cm x H 75cm', priceFactor: 1.55 }
+  ];
+};
+
+export const getSetsForProduct = (category: string): SetOption[] => {
+  if (category === 'Decorative Objects' || category === 'Ceramic Stools') {
+    return [
+      { name: 'Single Piece', qty: 1, priceFactor: 1.0 },
+      { name: 'Pair (Set of 2)', qty: 2, priceFactor: 1.85 }
+    ];
+  }
+  return [
+    { name: 'Single Pot', qty: 1, priceFactor: 1.0 },
+    { name: 'Set of 3 (Nesting)', qty: 3, priceFactor: 2.55 },
+    { name: 'Set of 6 (Master Pack)', qty: 6, priceFactor: 4.80 }
+  ];
+};
 
 export function generateAllProducts(): Product[] {
   const list: Product[] = [];
@@ -302,6 +338,36 @@ export function generateAllProducts(): Product[] {
       relatedItems: ['G002', 'P002'],
       active: true,
     });
+  });
+
+  // Attach multiple sizes and sets / packages default configurations
+  list.forEach((p, index) => {
+    p.sizes = getSizesForProduct(p.category, p.dimensions);
+    p.sets = getSetsForProduct(p.category);
+
+    // Generate realistic base retail prices
+    let baseRetail = 45.00;
+    if (p.category === 'Outdoor Planters') baseRetail = 65.00 + (index % 5) * 10;
+    else if (p.category === 'Indoor Pots') baseRetail = 35.00 + (index % 4) * 5;
+    else if (p.category === 'Decorative Vases') baseRetail = 28.00 + (index % 4) * 6;
+    else if (p.category === 'Ceramic Stools') baseRetail = 95.00 + (index % 3) * 15;
+    else if (p.category === 'Decorative Objects') baseRetail = 22.00 + (index % 4) * 4;
+    else if (p.category === 'Large Garden Pieces') baseRetail = 180.00 + (index % 3) * 35;
+
+    p.retailPrice = baseRetail;
+    p.retailPriceVisible = true;
+    p.retailCurrency = 'USD';
+    p.checkoutEnabled = true;
+
+    // Generate realistic B2B FOB price configurations
+    const code = parseInt(p.id.replace(/^\D+/g, '')) || 5;
+    const baseFob = 8 + (code % 15) * 2.5;
+    p.fobPriceTier1 = baseFob;
+    p.fobPriceTier2 = baseFob * 0.85;
+    p.moq = 10 + (code % 5) * 5;
+    p.fobCurrency = 'USD';
+    p.priceUnit = 'piece';
+    p.fobPricingEnabled = true;
   });
 
   return list;

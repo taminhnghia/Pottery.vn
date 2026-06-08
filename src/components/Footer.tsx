@@ -179,6 +179,11 @@ export default function Footer({ language, onNavigate }: FooterProps) {
                   {t('Cookie Policy', 'Chính sách cookie')}
                 </button>
               </li>
+              <li>
+                <button onClick={() => onNavigate('/demo-control')} className="hover:text-pottery-sand hover:underline text-left text-[11px] font-mono text-stone-500 flex items-center gap-1.5 mt-2 border-t border-white/5 pt-2">
+                  🔒 {t('Role Simulation & Admin Sandbox', 'Giả lập phân quyền & Sandbox')}
+                </button>
+              </li>
               <li className="pt-4 text-[10px] italic leading-tight text-stone-500 font-mono">
                 {t('Legal content and registrations must be reviewed before public deployment.', 'Thông tin pháp nhân và xưởng sản xuất thực tế sẽ được cập nhật chính thức sau khi phê duyệt nội dung.')}
               </li>

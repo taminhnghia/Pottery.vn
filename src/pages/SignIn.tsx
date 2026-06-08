@@ -84,13 +84,23 @@ export default function SignIn({ language, onNavigate, onLoginAsRole }: SignInPr
 
       </div>
 
-      <div className="text-center">
-        <button
-          onClick={() => handleSelectRole('guest')}
-          className="text-xs font-mono text-stone-500 hover:text-pottery-terracotta underline"
-        >
-          {t('Clear credentials, continue as Guest Visitor', 'Hủy phiên, duyệt trang như Khách vãng lai')}
-        </button>
+      <div className="text-center pt-4 border-t border-stone-100 space-y-3">
+        <div>
+          <button
+            onClick={() => handleSelectRole('guest')}
+            className="text-xs font-mono text-stone-500 hover:text-pottery-terracotta underline"
+          >
+            {t('Clear credentials, continue as Guest Visitor', 'Hủy phiên, duyệt trang như Khách vãng lai')}
+          </button>
+        </div>
+        <div>
+          <button
+            onClick={() => onNavigate('/demo-control')}
+            className="text-[10px] font-mono text-stone-400 hover:text-pottery-terracotta flex items-center gap-1.5 justify-center mx-auto"
+          >
+            🔒 {t('Access System Simulation Control Panel', 'Truy cập Bảng mô phỏng quyền hạn & Sandbox')}
+          </button>
+        </div>
       </div>
 
     </div>

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Product, User, UserRole, TradeApplication, CustomDevelopmentBrief } from './types';
+import { Product, User, UserRole, TradeApplication, CustomDevelopmentBrief, Order, CartItem, SizeOption, SetOption } from './types';
 import { generateAllProducts } from './data/products';
 
 import RoleSimulator from './components/RoleSimulator';
@@ -27,6 +27,7 @@ import Legal from './pages/Legal';
 import Account from './pages/Account';
 import SignIn from './pages/SignIn';
 import Dashboard from './pages/Dashboard';
+import DemoControl from './pages/DemoControl';
 
 export default function App() {
   // Master states
@@ -36,13 +37,23 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>(generateAllProducts());
   
   // Shopping cart bag state
-  const [cart, setCart] = useState<{ product: Product; qty: number }[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   // RFQ inquiry state (products added to wholesale list)
   const [inquiry, setInquiry] = useState<Product[]>([]);
   // Favorite saved products
   const [savedProductIds, setSavedProductIds] = useState<string[]>([]);
   // Active modal focus inside products page
   const [selectedProductSKU, setSelectedProductSKU] = useState<string | null>(null);
+
+  // Simulation config state (Quick bar hidden from public by default)
+  const [isQuickBarEnabled, setQuickBarEnabled] = useState<boolean>(() => {
+    return localStorage.getItem('pottery_quick_bar_enabled') === 'true';
+  });
+
+  const handleSetQuickBarEnabled = (val: boolean) => {
+    setQuickBarEnabled(val);
+    localStorage.setItem('pottery_quick_bar_enabled', val ? 'true' : 'false');
+  };
 
   // Seed initial trade applications for Admin Dashboard
   const [tradeApplications, setTradeApplications] = useState<TradeApplication[]>([
@@ -198,6 +209,110 @@ export default function App() {
     { id: 'SUB-05', email: 'sydney.landscapes@design.com.au', dateSubscribed: '2026-06-07', status: 'Active', source: 'Catalog Download' }
   ]);
 
+  // Seed initial simulated orders for retail tracking & B2B shipping workflows
+  const [orders, setOrders] = useState<Order[]>([
+    {
+      id: 'POT-2026-1024',
+      customerId: 'USR-0452',
+      customerName: 'Elena Petrova',
+      customerEmail: 'elena.petrova@decorlux.cz',
+      orderType: 'Retail',
+      orderDate: '2026-05-15',
+      items: [
+        {
+          productId: 'P001',
+          productName: 'Atlas Outdoor Planter P001',
+          sku: 'P001',
+          image: 'https://images.unsplash.com/photo-1545241047-6083a3684587',
+          quantity: 2,
+          price: 65.00
+        },
+        {
+          productId: 'I001',
+          productName: 'Luna Indoor Pot I001',
+          sku: 'I001',
+          image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae',
+          quantity: 1,
+          price: 45.00
+        }
+      ],
+      totalAmount: 175.00,
+      paidAmount: 175.00,
+      paymentStatus: 'Fully Paid',
+      paymentMethod: 'Direct Bank Transfer',
+      deliveryStatus: 'Delivered',
+      deliveryDate: '2026-05-24',
+      carrierName: 'DHL Express',
+      trackingCode: 'TRK-294021',
+      shippingAddress: 'Prague 1 Old Town, Czech Republic',
+      notes: 'Elena requested thicker finish testing on Atlas series.'
+    },
+    {
+      id: 'POT-2026-4019',
+      customerId: 'USR-8901',
+      customerName: 'Nigel Green',
+      customerEmail: 'nigel@earthyvistas.com.au',
+      orderType: 'B2B Wholesale',
+      orderDate: '2026-05-20',
+      items: [
+        {
+          productId: 'P002',
+          productName: 'Terra Grand Planter P002',
+          sku: 'P002',
+          image: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411',
+          quantity: 150,
+          price: 18.50
+        },
+        {
+          productId: 'I002',
+          productName: 'Nara Interior Planter I002',
+          sku: 'I002',
+          image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace',
+          quantity: 50,
+          price: 25.00
+        }
+      ],
+      totalAmount: 4025.00,
+      paidAmount: 1207.50, // 30% deposit
+      paymentStatus: 'Deposit Paid 30%',
+      paymentMethod: 'TT (Telegraphic Transfer)',
+      deliveryStatus: 'Shipping Transit',
+      deliveryDate: '2026-06-22',
+      carrierName: 'Evergreen Marine Group',
+      trackingCode: 'EGVG-39204012_A',
+      shippingAddress: 'Port of Melbourne Warehouse B, Australia',
+      notes: 'Fumigated oak pallets according to custom AQIS guidelines.'
+    },
+    {
+      id: 'POT-2026-7098',
+      customerId: 'USR-3420',
+      customerName: 'Nguyên Minh Anh',
+      customerEmail: 'alex.minh@vietdecor.com',
+      orderType: 'B2B Wholesale',
+      orderDate: '2026-06-03',
+      items: [
+        {
+          productId: 'I003',
+          productName: 'Halo Accent Pot I003',
+          sku: 'I003',
+          image: 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42',
+          quantity: 40,
+          price: 22.00
+        }
+      ],
+      totalAmount: 880.00,
+      paidAmount: 0.00,
+      paymentStatus: 'Unpaid',
+      paymentMethod: 'Direct Bank Transfer',
+      deliveryStatus: 'Kiln Firing',
+      deliveryDate: '2026-07-01',
+      carrierName: 'Viettel Post Cargo',
+      trackingCode: 'VTPOST-882201_A',
+      shippingAddress: 'Phường Bến Nghé, Quận 1, Tp. Hồ Chí Minh, Vietnam',
+      notes: 'Hỏa biến nhủ chảy vàng góc lục lục.'
+    }
+  ]);
+
   // Sync scroll positioning on route change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -265,37 +380,55 @@ export default function App() {
   };
 
   // Cart bag quantity modifiers
-  const handleAddToCart = (product: Product) => {
-    const exists = cart.find(item => item.product.id === product.id);
+  const handleAddToCart = (product: Product, size?: SizeOption, set?: SetOption) => {
+    const selectedSize = size || product.sizes?.[0];
+    const selectedSet = set || product.sets?.[0];
+    const sizeName = selectedSize ? selectedSize.name : 'Default';
+    const setName = selectedSet ? selectedSet.name : 'Default';
+    const cartItemId = `${product.id}-${sizeName}-${setName}`;
+
+    const exists = cart.find(item => item.id === cartItemId);
     if (exists) {
       setCart(cart.map(item => {
-        if (item.product.id === product.id) {
+        if (item.id === cartItemId) {
           return { ...item, qty: item.qty + 1 };
         }
         return item;
       }));
     } else {
-      setCart([...cart, { product, qty: 1 }]);
+      setCart([...cart, {
+        id: cartItemId,
+        product,
+        qty: 1,
+        selectedSize,
+        selectedSet
+      }]);
     }
     
     // Auto shift to retail mode or suggest shopping bag
     if (currentRole === 'guest') {
       setCurrentRole('retail_customer');
     }
-    alert(language === 'en' ? `${product.name} added to cart bag!` : `Đã thêm ${product.name} vào giỏ hàng!`);
+    
+    const sizeDisplay = language === 'en' ? sizeName : sizeName;
+    const setDisplay = language === 'en' ? setName : setName;
+    alert(language === 'en' 
+      ? `${product.name} (${sizeDisplay} • ${setDisplay}) added to cart bag!` 
+      : `Đã thêm ${product.name} (${sizeDisplay} • ${setDisplay}) vào giỏ hàng!`
+    );
   };
 
-  const handleUpdateCartQty = (productId: string, qty: number) => {
+  const handleUpdateCartQty = (cartItemId: string, qty: number) => {
     setCart(cart.map(item => {
-      if (item.product.id === productId) {
+      if (item.id === cartItemId) {
         return { ...item, qty: Math.max(1, qty) };
       }
       return item;
     }));
   };
 
-  const handleRemoveFromCart = (productId: string) => {
-    setCart(cart.filter(item => item.product.id !== productId));
+  const handleRemoveFromCart = (cartItemId: string) => {
+    setCart(cart.filter(item => item.id !== cartItemId));
   };
 
   const handleClearCart = () => {
@@ -352,12 +485,14 @@ export default function App() {
     <div id="pottery-root" className="min-h-screen flex flex-col font-sans antialiased text-pottery-charcoal bg-pottery-warmwhite">
       
       {/* Interactive QA auditor control panel */}
-      <RoleSimulator
-        currentRole={currentRole}
-        onChangeRole={handleLoginAsRole}
-        pendingApplicationsCount={pendingApplicationsCount}
-        totalInquiriesCount={totalInquiriesCount}
-      />
+      {isQuickBarEnabled && (
+        <RoleSimulator
+          currentRole={currentRole}
+          onChangeRole={handleLoginAsRole}
+          pendingApplicationsCount={pendingApplicationsCount}
+          totalInquiriesCount={totalInquiriesCount}
+        />
+      )}
 
       {/* Styled Headroom headers */}
       <Navbar
@@ -400,6 +535,7 @@ export default function App() {
             language={language}
             currentRole={currentRole}
             onNavigate={executeNavigation}
+            onAddToCart={handleAddToCart}
             onAddToInquiry={handleAddToInquiry}
             onSaveProduct={handleSaveProduct}
             isSaved={isSaved}
@@ -515,6 +651,8 @@ export default function App() {
             inquiry={inquiry}
             savedProducts={savedProductsList}
             tradeApplications={tradeApplications}
+            orders={orders}
+            setOrders={setOrders}
             onNavigate={executeNavigation}
             onUpdateCartQty={handleUpdateCartQty}
             onRemoveFromCart={handleRemoveFromCart}
@@ -535,6 +673,8 @@ export default function App() {
             inquiry={inquiry}
             savedProducts={savedProductsList}
             tradeApplications={tradeApplications}
+            orders={orders}
+            setOrders={setOrders}
             onNavigate={executeNavigation}
             onUpdateCartQty={handleUpdateCartQty}
             onRemoveFromCart={handleRemoveFromCart}
@@ -561,6 +701,8 @@ export default function App() {
             products={products}
             tradeApplications={tradeApplications}
             customBriefs={customBriefs}
+            orders={orders}
+            setOrders={setOrders}
             onNavigate={executeNavigation}
             onApproveApplication={handleApproveApplication}
             onRejectApplication={handleRejectApplication}
@@ -572,6 +714,17 @@ export default function App() {
             setRegisteredUsers={setRegisteredUsers}
             newsletterSubscribers={newsletterSubscribers}
             setNewsletterSubscribers={setNewsletterSubscribers}
+          />
+        )}
+
+        {currentPath === '/demo-control' && (
+          <DemoControl
+            language={language}
+            currentRole={currentRole}
+            onChangeRole={handleLoginAsRole}
+            onNavigate={executeNavigation}
+            isQuickBarEnabled={isQuickBarEnabled}
+            setQuickBarEnabled={handleSetQuickBarEnabled}
           />
         )}
 
