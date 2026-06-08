@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { Product, UserRole } from '../types';
-import { ArrowRight, Sparkles, CheckCircle, Shield, FileSpreadsheet, Layers, Send, Download } from 'lucide-react';
+import { ArrowRight, Sparkles, CheckCircle, Shield, FileSpreadsheet, Layers, Send, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface HomeProps {
   products: Product[];
@@ -29,6 +29,59 @@ export default function Home({
   isSaved
 }: HomeProps) {
   const t = (en: string, vi: string) => (language === 'en' ? en : vi);
+
+  // Hero carousel state
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % 3);
+    }, 6500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handlePrevSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveSlide((prev) => (prev === 0 ? 2 : prev - 1));
+  };
+
+  const handleNextSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveSlide((prev) => (prev + 1) % 3);
+  };
+
+  const heroSlides = [
+    {
+      img: "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=1600&q=80",
+      tagline: t('Est. 2026 • Premium Outdoor Craftsmanship', 'Thành lập 2026 • Gốm Sứ Sân Vườn Cao Cấp'),
+      title: t('Vietnamese Outdoor Masterpieces for Premium Landscapes', 'Chậu Gốm Ngoại Thất Đắp Men – Nâng Tầm Biệt Thự'),
+      desc: t('Heavy-duty clay pots, weather-resistant firing, and exquisite hand-applied glazes made to withstand freezes and harsh weather worldwide.', 'Chất đất sét chịu sương tuyết, dải men nung nhiệt độ cao từ kỹ sư thợ cả, kiến tạo điểm nhấn bền bỉ tuyệt mỹ cho resort & biệt thự cao cấp B2B.'),
+      btn1Text: t('Explore Products', 'Xem Sản Phẩm lẻ'),
+      btn1Path: '/products',
+      btn2Text: t('Request FOB Quote', 'Đàm Phán FOB Sỉ'),
+      btn2Path: '/trade'
+    },
+    {
+      img: "https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=1600&q=80",
+      tagline: t('Artisan Glazes • Curated Interior Styling', 'Phòng chế tác màu men mộc • Tĩnh lặng Bắc Âu'),
+      title: t('Elegance Sculpted in Fine-Walled Ceramic Vases', 'Vẻ Đẹp Đương Đại Trên Từng Thân Quạt Gốm Mộc'),
+      desc: t('Organic forms, sand wash textures, and premium metallic dripping glazes designed for minimal homes, art galleries, and architectural spaces.', 'Bình gốm mộc nghệ thuật mang phong cách thiết kế Wabi-Sabi và Zen nhẹ nhàng tinh khiết, mang sinh khí thiên nhiên chân thật nhất vào sảnh chờ, phòng khách.'),
+      btn1Text: t('Bespoke Custom R&D', 'Xưởng Chế Tác Mẫu'),
+      btn1Path: '/custom-development',
+      btn2Text: t('Browse Collections', 'Xem Bộ Sưu Tập'),
+      btn2Path: '/collections'
+    },
+    {
+      img: "https://images.unsplash.com/photo-1574362848149-11496d93a7c7?auto=format&fit=crop&w=1600&q=80",
+      tagline: t('B2B Trade & Large Volume • Export Standard', 'Chuỗi bán lẻ & Thầu dự án • Đóng kiện gỗ hun trùng'),
+      title: t('Container-Scale Global Freight Pottery Delivery', 'Nhà Cung Ứng Container Xuất Khẩu Toàn Cầu'),
+      desc: t('Direct factory orders, standardized ISPM-15 export bark-free wood pallets support, and full custom CAD mold production with flawless tracking.', 'Cung ứng trọn gói bao gồm thiết kế mẫu 3D độc quyền, kiểm soát hư hao nhiệt độ, hỗ trợ ghép sỉ gom công và lo thủ tục hải quan xuất bến nhanh chóng.'),
+      btn1Text: t('B2B Enterprise Portal', 'Cổng Doanh Nghiệp sỉ'),
+      btn1Path: '/trade',
+      btn2Text: t('Download specifications', 'Tải Spec Catalogue'),
+      btn2Path: '/catalogue'
+    }
+  ];
 
   // Form states for Request Catalogue
   const [catName, setCatName] = useState('');
@@ -94,62 +147,107 @@ export default function Home({
   return (
     <div className="space-y-16">
       
-      {/* SECTION 1: HERO */}
-      <section className="relative h-[85vh] bg-stone-900 overflow-hidden flex items-center">
-        {/* Underlay Image */}
+      {/* SECTION 1: HERO - INTERACTIVE SLIDE CAROUSEL */}
+      <section className="relative h-[85vh] bg-stone-950 overflow-hidden flex items-center group/hero" id="home-hero-carousel">
+        {/* Slides Container */}
         <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1574362848149-11496d93a7c7?auto=format&fit=crop&w=1600&q=80"
-            alt="Vietnamese Luxury Garden Pottery Layout"
-            className="w-full h-full object-cover opacity-60"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-stone-950/80 to-transparent"></div>
+          {heroSlides.map((slide, index) => {
+            const isActive = index === activeSlide;
+            return (
+              <div
+                key={index}
+                className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                  isActive ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-105 pointer-events-none'
+                }`}
+                style={{ zIndex: isActive ? 10 : 0 }}
+              >
+                {/* Image */}
+                <img
+                  src={slide.img}
+                  alt={slide.title}
+                  className="w-full h-full object-cover opacity-60 transition-transform duration-[6500ms] ease-out-sine"
+                  style={{ transform: isActive ? 'scale(1.05)' : 'scale(1.15)' }}
+                />
+                
+                {/* Advanced Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-stone-950/90 via-stone-950/50 to-stone-950/20"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-transparent opacity-60"></div>
+                
+                {/* Slide Floating Content Container */}
+                <div className="absolute inset-0 flex items-center">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full text-white">
+                    <div className="max-w-2.5xl space-y-6 md:space-y-8">
+                      <span className="inline-block text-[10px] sm:text-[11px] uppercase tracking-[0.25em] font-mono font-bold text-pottery-sand bg-white/10 px-3 py-1 rounded backdrop-blur-xs transition-all duration-700 delay-100 translate-y-0 opacity-100">
+                        {slide.tagline}
+                      </span>
+                      
+                      <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif tracking-tight leading-[1.08] text-white font-medium max-w-2.5xl">
+                        {slide.title}
+                      </h1>
+                      
+                      <p className="text-xs sm:text-sm md:text-base text-stone-200 leading-relaxed max-w-xl font-light">
+                        {slide.desc}
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-4 pt-2">
+                        <button
+                          onClick={() => onNavigate(slide.btn1Path)}
+                          className="bg-pottery-terracotta hover:bg-pottery-deepclay text-white px-6 py-3 text-[11px] tracking-wider uppercase font-semibold transition-all duration-300 flex items-center gap-2 group shadow-xl hover:shadow-pottery-terracotta/20"
+                        >
+                          <span>{slide.btn1Text}</span>
+                          <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
+                        </button>
+                        
+                        <button
+                          onClick={() => onNavigate(slide.btn2Path)}
+                          className="bg-white/10 hover:bg-white/20 text-white border border-white/25 hover:border-white/40 px-6 py-3 text-[11px] tracking-wider uppercase font-semibold transition"
+                        >
+                          {slide.btn2Text}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            );
+          })}
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full text-white">
-          <div className="max-w-2xl space-y-6">
-            <span className="inline-block text-[11px] uppercase tracking-[0.25em] font-mono font-bold text-pottery-sand bg-white/10 px-3 py-1 rounded backdrop-blur-xs">
-              {t('Est. 2026 • Premium Craftsmanship', 'Thành lập 2026 • Tinh hoa đất nung')}
-            </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6.5xl font-serif tracking-tight leading-[1.05]">
-              {t('Vietnamese Pottery Crafted for Global Spaces.', 'Gốm Sứ Việt Nam Kiến Tạo Không Gian Sống Toàn Cầu.')}
-            </h1>
-            <p className="text-sm sm:text-base text-stone-200 leading-relaxed max-w-xl font-light">
-              {t(
-                'Outdoor planters, decorative vessels, ceramic stools, and custom pottery collections for homes, retailers, importers, and hospitality projects worldwide.',
-                'Chậu cây ngoài trời, bình gốm mỹ thuật, đôn trang trí và các bộ sưu tập gốm độc bản phục vụ các đại lý, đơn vị bán lẻ và dự án kiến trúc cao cấp.'
-              )}
-            </p>
+        {/* Carousel Arrow Controls */}
+        <button
+          onClick={handlePrevSlide}
+          className="absolute left-4 z-20 w-10 h-10 rounded-full border border-white/10 bg-black/20 hover:bg-black/50 text-white flex items-center justify-center backdrop-blur-xs opacity-0 group-hover/hero:opacity-100 transition duration-300"
+          aria-label="Previous Slide"
+        >
+          <ChevronLeft size={20} />
+        </button>
 
-            <div className="flex flex-wrap items-center gap-4 pt-4">
-              <button
-                onClick={() => onNavigate('/products')}
-                className="bg-pottery-terracotta hover:bg-pottery-deepclay text-white px-6 py-3 text-xs tracking-wider uppercase font-semibold transition flex items-center gap-2 group shadow-lg"
-              >
-                <span>{t('Explore Products', 'Xem Sản phẩm')}</span>
-                <ArrowRight size={14} className="transition transform group-hover:translate-x-1" />
-              </button>
-              
-              <button
-                onClick={() => onNavigate('/trade')}
-                className="bg-white/10 hover:bg-white/20 text-white border border-white/35 px-6 py-3 text-xs tracking-wider uppercase font-semibold transition"
-              >
-                {t('Request FOB Quote', 'Đàm phán Giá B2B FOB')}
-              </button>
-              
-              <button
-                onClick={() => onNavigate('/catalogue')}
-                className="text-xs text-pottery-sand underline hover:text-white transition tracking-wider uppercase font-mono font-semibold"
-              >
-                {t('Download Catalogue', 'Tải Brochure catalogue')}
-              </button>
-            </div>
-          </div>
+        <button
+          onClick={handleNextSlide}
+          className="absolute right-4 z-20 w-10 h-10 rounded-full border border-white/10 bg-black/20 hover:bg-black/50 text-white flex items-center justify-center backdrop-blur-xs opacity-0 group-hover/hero:opacity-100 transition duration-300"
+          aria-label="Next Slide"
+        >
+          <ChevronRight size={20} />
+        </button>
+
+        {/* Dynamic Dot Indicators (Capsule Theme) */}
+        <div className="absolute bottom-18 left-0 right-0 z-20 flex justify-center gap-2.5">
+          {heroSlides.map((_, index) => (
+            <button
+              key={index}
+              onClick={(e) => { e.stopPropagation(); setActiveSlide(index); }}
+              className={`h-1.5 rounded-full transition-all duration-500 ${
+                index === activeSlide ? 'w-8 bg-pottery-terracotta' : 'w-2 bg-white/40 hover:bg-white/70'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            ></button>
+          ))}
         </div>
 
-        {/* Floating trust strip */}
-        <div className="absolute bottom-0 left-0 right-0 bg-pottery-charcoal/90 border-t border-pottery-terracotta/20 py-4 z-10 text-white/90">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-[10px] sm:text-xs tracking-[0.16em] uppercase font-mono">
+        {/* Floating Trust Strip */}
+        <div className="absolute bottom-0 left-0 right-0 bg-pottery-charcoal/95 border-t border-pottery-terracotta/20 py-4 z-20 text-white/90 backdrop-blur-xs">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-[9px] sm:text-xs tracking-[0.16em] uppercase font-mono">
             {t(
               'Indoor Living • Outdoor Landscape • Retail Collections • B2B Export Supply',
               'Không gian Trong nhà • Cảnh quan Sân vườn • Chuỗi Bán lẻ • Cung ứng Xuất khẩu FOB'
@@ -329,6 +427,67 @@ export default function Home({
             <p className="text-xs text-stone-300 leading-relaxed font-serif italic">
               "To be updated with official certifications and specific kiln technology details upon validation."
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4.5: SPECIAL PRODUCT RANGE PROMO BANNERS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6" id="product-range-banners">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Banner 1: Cobalt & Emerald Glazes */}
+          <div className="relative overflow-hidden rounded-lg min-h-[300px] flex items-center bg-stone-900 text-white group cursor-pointer" onClick={() => onNavigate('/products')}>
+            <div className="absolute inset-0 z-0">
+              <img
+                src="https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&w=800&q=80"
+                alt="Teahouse and Glazes detail"
+                className="w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-stone-950/90 via-stone-900/60 to-transparent"></div>
+            </div>
+            
+            <div className="relative z-10 p-8 sm:p-10 space-y-4 max-w-md">
+              <span className="inline-block text-[10px] tracking-[0.2em] font-mono text-pottery-sand uppercase font-bold bg-white/10 px-2.5 py-1 rounded">
+                {t('KILN EXPERIMENTAL GLIDE', 'BẢN SẮC MEN PHỔ CỔ')}
+              </span>
+              <h3 className="text-xl sm:text-2xl font-serif font-bold text-white leading-tight">
+                {t('Coated Cobalt & Cracking Emerald Reactive Glazes', 'Tinh Hoa Men Chảy Bát Sắc & Ngọc Bích Vân Rạn')}
+              </h3>
+              <p className="text-xs text-stone-300 leading-relaxed font-light">
+                {t('Curate your wholesale container with limited-edition high-fire flows developed in our R&D lab.', 'Hàng trăm sắc độ hỏa biến tuyệt diệu nung chín ở 1280°C tạo nên chiều sâu lung linh ảo diệu độc quyền.')}
+              </p>
+              <div className="text-xs text-white group-hover:text-pottery-sand font-semibold uppercase tracking-wider flex items-center gap-1.5 transition">
+                <span>{t('Discover Glazes', 'Khám phá sắc men')}</span>
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+              </div>
+            </div>
+          </div>
+
+          {/* Banner 2: Giant Garden Planters */}
+          <div className="relative overflow-hidden rounded-lg min-h-[300px] flex items-center bg-stone-900 text-white group cursor-pointer" onClick={() => onNavigate('/products')}>
+            <div className="absolute inset-0 z-0">
+              <img
+                src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80"
+                alt="Large scale outdoor pot"
+                className="w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-stone-950/90 via-stone-900/60 to-transparent"></div>
+            </div>
+
+            <div className="relative z-10 p-8 sm:p-10 space-y-4 max-w-md">
+              <span className="inline-block text-[10px] tracking-[0.2em] font-mono text-pottery-sand uppercase font-bold bg-white/10 px-2.5 py-1 rounded">
+                {t('RESILIENT STONEWARE', 'ĐẤT NUNG CHỊU LỰC GIGANTIC')}
+              </span>
+              <h3 className="text-xl sm:text-2xl font-serif font-bold text-white leading-tight">
+                {t('Heavy Volcanic Textured Giant Planters', 'Bộ Sưu Tập Lu Gốm & Chậu Cây Đại Sân Vườn')}
+              </h3>
+              <p className="text-xs text-stone-300 leading-relaxed font-light">
+                {t('Massive statement vases up to 1.8 meters tall, structurally sound for commercial resort entries.', 'Trang trí sân thượng, sảnh resort rộng lớn bằng những tuyệt phẩm đắp mộc gờ nổi dũng mãnh, đầy lôi cuốn.')}
+              </p>
+              <div className="text-xs text-white group-hover:text-pottery-sand font-semibold uppercase tracking-wider flex items-center gap-1.5 transition">
+                <span>{t('View Giant Planters', 'Xem Chậu Ngoại Cỡ')}</span>
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -641,6 +800,47 @@ export default function Home({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 8.5: RESORT AND CONTRACT SOURCING HERO BANNER */}
+      <section className="relative py-24 bg-stone-900 text-white overflow-hidden flex items-center min-h-[350px]" id="resort-contract-sourcing-banner">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=1600&q=80"
+            alt="Luxury resort with great planters"
+            className="w-full h-full object-cover opacity-45"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-900/60 to-stone-950/80"></div>
+        </div>
+
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-6">
+          <span className="text-xs uppercase tracking-[0.25em] font-mono text-pottery-sand font-bold block">
+            {t('5-STAR RESORT CONTRACT SOURCING', 'HỢP TÁC DỰ ÁN NGHỈ DƯỠNG & CẢNH QUAN CAO CẤP')}
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-white leading-tight">
+            {t('Architectural Scale & Custom Hospitality Solutions', 'May Đo Riêng Cho Công Trình Nghỉ Dưỡng Thượng Lưu')}
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-300 max-w-2xl mx-auto leading-relaxed font-light">
+            {t(
+              'We partner with lead landscape designers to produce certified frostproof structural stoneware, bespoke glazes matching brand color guides, and engraved hallmark insignia. Standard container logistical delivery or premium air-freight samples.',
+              'Vietnam Pottery là đối tác chiến lược chế tác cơ số gốm sứ ngoại cỡ cho sảnh đón, giếng trời và hồ bơi vô cực tại các resort mang tầm quốc tế.'
+            )}
+          </p>
+          <div className="flex justify-center flex-wrap gap-4 pt-2">
+            <button
+              onClick={() => onNavigate('/custom-development')}
+              className="bg-pottery-terracotta hover:bg-pottery-deepclay text-white text-xs font-semibold uppercase tracking-wider py-3.5 px-8 rounded transition animate-pulse hover:animate-none"
+            >
+              {t('Consult Custom Solution', 'Tìm Hiểu Năng Lực R&D')}
+            </button>
+            <button
+              onClick={() => onNavigate('/export-capabilities')}
+              className="bg-white/10 hover:bg-white/25 border border-white/30 text-white text-xs font-semibold uppercase tracking-wider py-3.5 px-8 rounded transition"
+            >
+              {t('Download Certificates', 'Hồ Sơ Năng Lực Nhà Máy')}
+            </button>
           </div>
         </div>
       </section>

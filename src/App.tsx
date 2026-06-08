@@ -32,17 +32,41 @@ import DemoControl from './pages/DemoControl';
 
 export default function App() {
   // Master states
-  const [currentRole, setCurrentRole] = useState<UserRole>('guest');
-  const [language, setLanguage] = useState<'en' | 'vi'>('en');
+  const [currentRole, setCurrentRole] = useState<UserRole>(() => {
+    const saved = localStorage.getItem('pottery_current_role');
+    return (saved as UserRole) || 'guest';
+  });
+
+  const [language, setLanguage] = useState<'en' | 'vi'>(() => {
+    const saved = localStorage.getItem('pottery_language');
+    return (saved as 'en' | 'vi') || 'en';
+  });
+
   const [currentPath, setCurrentPath] = useState<string>('/');
-  const [products, setProducts] = useState<Product[]>(generateAllProducts());
+
+  const [products, setProducts] = useState<Product[]>(() => {
+    const saved = localStorage.getItem('pottery_products');
+    return saved ? JSON.parse(saved) : generateAllProducts();
+  });
   
   // Shopping cart bag state
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const saved = localStorage.getItem('pottery_cart');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   // RFQ inquiry state (products added to wholesale list)
-  const [inquiry, setInquiry] = useState<Product[]>([]);
+  const [inquiry, setInquiry] = useState<Product[]>(() => {
+    const saved = localStorage.getItem('pottery_inquiry');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   // Favorite saved products
-  const [savedProductIds, setSavedProductIds] = useState<string[]>([]);
+  const [savedProductIds, setSavedProductIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem('pottery_saved_ids');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   // Active modal focus inside products page
   const [selectedProductSKU, setSelectedProductSKU] = useState<string | null>(null);
 
@@ -57,143 +81,152 @@ export default function App() {
   };
 
   // Seed initial trade applications for Admin Dashboard
-  const [tradeApplications, setTradeApplications] = useState<TradeApplication[]>([
-    {
-      id: 'APP-0128',
-      date: '2026-05-18',
-      companyName: 'Earthy Vistas Australia',
-      companyWebsite: 'www.earthyvistas.com.au',
-      country: 'Australia',
-      businessRegistrationNumber: 'AU-ABN-82910',
-      businessType: 'Importer',
-      primarySalesChannel: 'Landscape Sourcing',
-      contactName: 'Nigel Green',
-      jobTitle: 'Sourcing Director',
-      email: 'nigel@earthyvistas.com.au',
-      phone: '+61 412 890 210',
-      preferredIncoterm: 'FOB',
-      status: 'approved'
-    },
-    {
-      id: 'APP-4318',
-      date: '2026-05-24',
-      companyName: 'Munich Botanical Yards',
-      companyWebsite: 'www.munichbotanical.de',
-      country: 'Germany',
-      businessRegistrationNumber: 'DE-TAX-432190',
-      businessType: 'Garden Centre',
-      primarySalesChannel: 'Lifestyle Retail',
-      contactName: 'Karla Schmidt',
-      jobTitle: 'Category Importer',
-      email: 'k.schmidt@botanicalyards.de',
-      phone: '+49 89 241982',
-      preferredIncoterm: 'FOB',
-      status: 'pending'
-    },
-    {
-      id: 'APP-9812',
-      date: '2026-06-01',
-      companyName: 'WestCoast Stoneware Inc.',
-      companyWebsite: 'www.westcoaststone.us',
-      country: 'United States',
-      businessRegistrationNumber: 'US-EIN-982190',
-      businessType: 'Distributor',
-      primarySalesChannel: 'Wholesale Division',
-      contactName: 'Dylan Carter',
-      jobTitle: 'VP Procurement',
-      email: 'd.carter@westcoaststone.me',
-      phone: '+1 (415) 390-2810',
-      preferredIncoterm: 'CIF',
-      status: 'pending'
-    }
-  ]);
+  const [tradeApplications, setTradeApplications] = useState<TradeApplication[]>(() => {
+    const saved = localStorage.getItem('pottery_trade_applications');
+    return saved ? JSON.parse(saved) : [
+      {
+        id: 'APP-0128',
+        date: '2026-05-18',
+        companyName: 'Earthy Vistas Australia',
+        companyWebsite: 'www.earthyvistas.com.au',
+        country: 'Australia',
+        businessRegistrationNumber: 'AU-ABN-82910',
+        businessType: 'Importer',
+        primarySalesChannel: 'Landscape Sourcing',
+        contactName: 'Nigel Green',
+        jobTitle: 'Sourcing Director',
+        email: 'nigel@earthyvistas.com.au',
+        phone: '+61 412 890 210',
+        preferredIncoterm: 'FOB',
+        status: 'approved'
+      },
+      {
+        id: 'APP-4318',
+        date: '2026-05-24',
+        companyName: 'Munich Botanical Yards',
+        companyWebsite: 'www.munichbotanical.de',
+        country: 'Germany',
+        businessRegistrationNumber: 'DE-TAX-432190',
+        businessType: 'Garden Centre',
+        primarySalesChannel: 'Lifestyle Retail',
+        contactName: 'Karla Schmidt',
+        jobTitle: 'Category Importer',
+        email: 'k.schmidt@botanicalyards.de',
+        phone: '+49 89 241982',
+        preferredIncoterm: 'FOB',
+        status: 'pending'
+      },
+      {
+        id: 'APP-9812',
+        date: '2026-06-01',
+        companyName: 'WestCoast Stoneware Inc.',
+        companyWebsite: 'www.westcoaststone.us',
+        country: 'United States',
+        businessRegistrationNumber: 'US-EIN-982190',
+        businessType: 'Distributor',
+        primarySalesChannel: 'Wholesale Division',
+        contactName: 'Dylan Carter',
+        jobTitle: 'VP Procurement',
+        email: 'd.carter@westcoaststone.me',
+        phone: '+1 (415) 390-2810',
+        preferredIncoterm: 'CIF',
+        status: 'pending'
+      }
+    ];
+  });
 
   // Seed initial custom R&D brains logs
-  const [customBriefs, setCustomBriefs] = useState<CustomDevelopmentBrief[]>([
-    {
-      id: 'RFD-0210',
-      fullName: 'Charlotte Miller',
-      company: 'Miller Architectural Design',
-      email: 'cmiller@millerdecor.com',
-      country: 'United States',
-      productCategory: 'Outdoor Planters',
-      estimatedQuantity: 200,
-      customizationDetails: 'Tall cylindrical outdoor planters with customized matte-iron glazes to mimic natural volcanic rocks. Drainage holes must reside strictly 5cm from the bottom walls.',
-      status: 'New'
-    },
-    {
-      id: 'RFD-9810',
-      fullName: 'Kaito Yamamoto',
-      company: 'Tokyo Tea Rituals',
-      email: 'yamamoto@tearituals.jp',
-      country: 'Japan',
-      productCategory: 'Decorative Vases',
-      estimatedQuantity: 120,
-      customizationDetails: 'Fine-walled sand wash teahouse flower vessels featuring a heavy emerald crackle interior drip glaze.',
-      status: 'New'
-    }
-  ]);
+  const [customBriefs, setCustomBriefs] = useState<CustomDevelopmentBrief[]>(() => {
+    const saved = localStorage.getItem('pottery_custom_briefs');
+    return saved ? JSON.parse(saved) : [
+      {
+        id: 'RFD-0210',
+        fullName: 'Charlotte Miller',
+        company: 'Miller Architectural Design',
+        email: 'cmiller@millerdecor.com',
+        country: 'United States',
+        productCategory: 'Outdoor Planters',
+        estimatedQuantity: 200,
+        customizationDetails: 'Tall cylindrical outdoor planters with customized matte-iron glazes to mimic natural volcanic rocks. Drainage holes must reside strictly 5cm from the bottom walls.',
+        status: 'New'
+      },
+      {
+        id: 'RFD-9810',
+        fullName: 'Kaito Yamamoto',
+        company: 'Tokyo Tea Rituals',
+        email: 'yamamoto@tearituals.jp',
+        country: 'Japan',
+        productCategory: 'Decorative Vases',
+        estimatedQuantity: 120,
+        customizationDetails: 'Fine-walled sand wash teahouse flower vessels featuring a heavy emerald crackle interior drip glaze.',
+        status: 'New'
+      }
+    ];
+  });
 
   // Seed registered customers & accounts
-  const [registeredUsers, setRegisteredUsers] = useState<User[]>([
-    {
-      id: 'USR-8901',
-      email: 'nigel@earthyvistas.com.au',
-      role: 'strategic_distributor',
-      fullName: 'Nigel Green',
-      companyName: 'Earthy Vistas Australia',
-      companyWebsite: 'www.earthyvistas.com.au',
-      country: 'Australia',
-      phone: '+61 412 890 210',
-      approvalStatus: 'approved',
-      assignedBuyerGroup: 'Platinum Importers Alliance',
-      registrationNumber: 'AU-ABN-82910',
-      businessType: 'Importer'
-    },
-    {
-      id: 'USR-1289',
-      email: 'k.schmidt@botanicalyards.de',
-      role: 'trade_applicant',
-      fullName: 'Karla Schmidt',
-      companyName: 'Munich Botanical Yards',
-      country: 'Germany',
-      phone: '+49 89 241982',
-      approvalStatus: 'pending',
-      registrationNumber: 'DE-TAX-432190',
-      businessType: 'Garden Centre'
-    },
-    {
-      id: 'USR-9023',
-      email: 'd.carter@westcoaststone.me',
-      role: 'trade_applicant',
-      fullName: 'Dylan Carter',
-      companyName: 'WestCoast Stoneware Inc.',
-      country: 'United States',
-      phone: '+1 (415) 390-2810',
-      approvalStatus: 'pending',
-      registrationNumber: 'US-EIN-982190',
-      businessType: 'Distributor'
-    },
-    {
-      id: 'USR-0452',
-      email: 'elena.petrova@decorlux.cz',
-      role: 'retail_customer',
-      fullName: 'Elena Petrova',
-      country: 'Czech Republic',
-      phone: '+420 224 811 111'
-    },
-    {
-      id: 'USR-3420',
-      email: 'alex.minh@vietdecor.com',
-      role: 'approved_b2b_buyer',
-      fullName: 'Nguyên Minh Anh',
-      companyName: 'VietDecor Design Studio',
-      country: 'Vietnam',
-      phone: '+84 903 881 992',
-      approvalStatus: 'approved',
-      businessType: 'Designer/Architect'
-    }
-  ]);
+  const [registeredUsers, setRegisteredUsers] = useState<User[]>(() => {
+    const saved = localStorage.getItem('pottery_registered_users');
+    return saved ? JSON.parse(saved) : [
+      {
+        id: 'USR-8901',
+        email: 'nigel@earthyvistas.com.au',
+        role: 'strategic_distributor',
+        fullName: 'Nigel Green',
+        companyName: 'Earthy Vistas Australia',
+        companyWebsite: 'www.earthyvistas.com.au',
+        country: 'Australia',
+        phone: '+61 412 890 210',
+        approvalStatus: 'approved',
+        assignedBuyerGroup: 'Platinum Importers Alliance',
+        registrationNumber: 'AU-ABN-82910',
+        businessType: 'Importer'
+      },
+      {
+        id: 'USR-1289',
+        email: 'k.schmidt@botanicalyards.de',
+        role: 'trade_applicant',
+        fullName: 'Karla Schmidt',
+        companyName: 'Munich Botanical Yards',
+        country: 'Germany',
+        phone: '+49 89 241982',
+        approvalStatus: 'pending',
+        registrationNumber: 'DE-TAX-432190',
+        businessType: 'Garden Centre'
+      },
+      {
+        id: 'USR-9023',
+        email: 'd.carter@westcoaststone.me',
+        role: 'trade_applicant',
+        fullName: 'Dylan Carter',
+        companyName: 'WestCoast Stoneware Inc.',
+        country: 'United States',
+        phone: '+1 (415) 390-2810',
+        approvalStatus: 'pending',
+        registrationNumber: 'US-EIN-982190',
+        businessType: 'Distributor'
+      },
+      {
+        id: 'USR-0452',
+        email: 'elena.petrova@decorlux.cz',
+        role: 'retail_customer',
+        fullName: 'Elena Petrova',
+        country: 'Czech Republic',
+        phone: '+420 224 811 111'
+      },
+      {
+        id: 'USR-3420',
+        email: 'alex.minh@vietdecor.com',
+        role: 'approved_b2b_buyer',
+        fullName: 'Nguyên Minh Anh',
+        companyName: 'VietDecor Design Studio',
+        country: 'Vietnam',
+        phone: '+84 903 881 992',
+        approvalStatus: 'approved',
+        businessType: 'Designer/Architect'
+      }
+    ];
+  });
 
   // Seed newsletter subscribers
   const [newsletterSubscribers, setNewsletterSubscribers] = useState<{
@@ -202,117 +235,168 @@ export default function App() {
     dateSubscribed: string;
     status: 'Active' | 'Unsubscribed';
     source: 'Home' | 'Footer' | 'Catalog Download' | 'Manual Registration' | 'Exit Intent';
-  }[]>([
-    { id: 'SUB-01', email: 'architect@luxespaces.co', dateSubscribed: '2026-05-12', status: 'Active', source: 'Home' },
-    { id: 'SUB-02', email: 'sourcing@homepots.com', dateSubscribed: '2026-05-20', status: 'Active', source: 'Catalog Download' },
-    { id: 'SUB-03', email: 'contact@bostongardens.us', dateSubscribed: '2026-06-02', status: 'Active', source: 'Footer' },
-    { id: 'SUB-04', email: 'info@danangclay.vn', dateSubscribed: '2026-06-04', status: 'Active', source: 'Manual Registration' },
-    { id: 'SUB-05', email: 'sydney.landscapes@design.com.au', dateSubscribed: '2026-06-07', status: 'Active', source: 'Catalog Download' }
-  ]);
+  }[]>(() => {
+    const saved = localStorage.getItem('pottery_newsletter_subscribers');
+    return saved ? JSON.parse(saved) : [
+      { id: 'SUB-01', email: 'architect@luxespaces.co', dateSubscribed: '2026-05-12', status: 'Active', source: 'Home' },
+      { id: 'SUB-02', email: 'sourcing@homepots.com', dateSubscribed: '2026-05-20', status: 'Active', source: 'Catalog Download' },
+      { id: 'SUB-03', email: 'contact@bostongardens.us', dateSubscribed: '2026-06-02', status: 'Active', source: 'Footer' },
+      { id: 'SUB-04', email: 'info@danangclay.vn', dateSubscribed: '2026-06-04', status: 'Active', source: 'Manual Registration' },
+      { id: 'SUB-05', email: 'sydney.landscapes@design.com.au', dateSubscribed: '2026-06-07', status: 'Active', source: 'Catalog Download' }
+    ];
+  });
 
   // Seed initial simulated orders for retail tracking & B2B shipping workflows
-  const [orders, setOrders] = useState<Order[]>([
-    {
-      id: 'POT-2026-1024',
-      customerId: 'USR-0452',
-      customerName: 'Elena Petrova',
-      customerEmail: 'elena.petrova@decorlux.cz',
-      orderType: 'Retail',
-      orderDate: '2026-05-15',
-      items: [
-        {
-          productId: 'P001',
-          productName: 'Atlas Outdoor Planter P001',
-          sku: 'P001',
-          image: 'https://images.unsplash.com/photo-1545241047-6083a3684587',
-          quantity: 2,
-          price: 65.00
-        },
-        {
-          productId: 'I001',
-          productName: 'Luna Indoor Pot I001',
-          sku: 'I001',
-          image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae',
-          quantity: 1,
-          price: 45.00
-        }
-      ],
-      totalAmount: 175.00,
-      paidAmount: 175.00,
-      paymentStatus: 'Fully Paid',
-      paymentMethod: 'Direct Bank Transfer',
-      deliveryStatus: 'Delivered',
-      deliveryDate: '2026-05-24',
-      carrierName: 'DHL Express',
-      trackingCode: 'TRK-294021',
-      shippingAddress: 'Prague 1 Old Town, Czech Republic',
-      notes: 'Elena requested thicker finish testing on Atlas series.'
-    },
-    {
-      id: 'POT-2026-4019',
-      customerId: 'USR-8901',
-      customerName: 'Nigel Green',
-      customerEmail: 'nigel@earthyvistas.com.au',
-      orderType: 'B2B Wholesale',
-      orderDate: '2026-05-20',
-      items: [
-        {
-          productId: 'P002',
-          productName: 'Terra Grand Planter P002',
-          sku: 'P002',
-          image: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411',
-          quantity: 150,
-          price: 18.50
-        },
-        {
-          productId: 'I002',
-          productName: 'Nara Interior Planter I002',
-          sku: 'I002',
-          image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace',
-          quantity: 50,
-          price: 25.00
-        }
-      ],
-      totalAmount: 4025.00,
-      paidAmount: 1207.50, // 30% deposit
-      paymentStatus: 'Deposit Paid 30%',
-      paymentMethod: 'TT (Telegraphic Transfer)',
-      deliveryStatus: 'Shipping Transit',
-      deliveryDate: '2026-06-22',
-      carrierName: 'Evergreen Marine Group',
-      trackingCode: 'EGVG-39204012_A',
-      shippingAddress: 'Port of Melbourne Warehouse B, Australia',
-      notes: 'Fumigated oak pallets according to custom AQIS guidelines.'
-    },
-    {
-      id: 'POT-2026-7098',
-      customerId: 'USR-3420',
-      customerName: 'Nguyên Minh Anh',
-      customerEmail: 'alex.minh@vietdecor.com',
-      orderType: 'B2B Wholesale',
-      orderDate: '2026-06-03',
-      items: [
-        {
-          productId: 'I003',
-          productName: 'Halo Accent Pot I003',
-          sku: 'I003',
-          image: 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42',
-          quantity: 40,
-          price: 22.00
-        }
-      ],
-      totalAmount: 880.00,
-      paidAmount: 0.00,
-      paymentStatus: 'Unpaid',
-      paymentMethod: 'Direct Bank Transfer',
-      deliveryStatus: 'Kiln Firing',
-      deliveryDate: '2026-07-01',
-      carrierName: 'Viettel Post Cargo',
-      trackingCode: 'VTPOST-882201_A',
-      shippingAddress: 'Phường Bến Nghé, Quận 1, Tp. Hồ Chí Minh, Vietnam',
-      notes: 'Hỏa biến nhủ chảy vàng góc lục lục.'
-    }
-  ]);
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const saved = localStorage.getItem('pottery_orders');
+    return saved ? JSON.parse(saved) : [
+      {
+        id: 'POT-2026-1024',
+        customerId: 'USR-0452',
+        customerName: 'Elena Petrova',
+        customerEmail: 'elena.petrova@decorlux.cz',
+        orderType: 'Retail',
+        orderDate: '2026-05-15',
+        items: [
+          {
+            productId: 'P001',
+            productName: 'Atlas Outdoor Planter P001',
+            sku: 'P001',
+            image: 'https://images.unsplash.com/photo-1545241047-6083a3684587',
+            quantity: 2,
+            price: 65.00
+          },
+          {
+            productId: 'I001',
+            productName: 'Luna Indoor Pot I001',
+            sku: 'I001',
+            image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae',
+            quantity: 1,
+            price: 45.00
+          }
+        ],
+        totalAmount: 175.00,
+        paidAmount: 175.00,
+        paymentStatus: 'Fully Paid',
+        paymentMethod: 'Direct Bank Transfer',
+        deliveryStatus: 'Delivered',
+        deliveryDate: '2026-05-24',
+        carrierName: 'DHL Express',
+        trackingCode: 'TRK-294021',
+        shippingAddress: 'Prague 1 Old Town, Czech Republic',
+        notes: 'Elena requested thicker finish testing on Atlas series.'
+      },
+      {
+        id: 'POT-2026-4019',
+        customerId: 'USR-8901',
+        customerName: 'Nigel Green',
+        customerEmail: 'nigel@earthyvistas.com.au',
+        orderType: 'B2B Wholesale',
+        orderDate: '2026-05-20',
+        items: [
+          {
+            productId: 'P002',
+            productName: 'Terra Grand Planter P002',
+            sku: 'P002',
+            image: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411',
+            quantity: 150,
+            price: 18.50
+          },
+          {
+            productId: 'I002',
+            productName: 'Nara Interior Planter I002',
+            sku: 'I002',
+            image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace',
+            quantity: 50,
+            price: 25.00
+          }
+        ],
+        totalAmount: 4025.00,
+        paidAmount: 1207.50, // 30% deposit
+        paymentStatus: 'Deposit Paid 30%',
+        paymentMethod: 'TT (Telegraphic Transfer)',
+        deliveryStatus: 'Shipping Transit',
+        deliveryDate: '2026-06-22',
+        carrierName: 'Evergreen Marine Group',
+        trackingCode: 'EGVG-39204012_A',
+        shippingAddress: 'Port of Melbourne Warehouse B, Australia',
+        notes: 'Fumigated oak pallets according to custom AQIS guidelines.'
+      },
+      {
+        id: 'POT-2026-7098',
+        customerId: 'USR-3420',
+        customerName: 'Nguyên Minh Anh',
+        customerEmail: 'alex.minh@vietdecor.com',
+        orderType: 'B2B Wholesale',
+        orderDate: '2026-06-03',
+        items: [
+          {
+            productId: 'I003',
+            productName: 'Halo Accent Pot I003',
+            sku: 'I003',
+            image: 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42',
+            quantity: 40,
+            price: 22.00
+          }
+        ],
+        totalAmount: 880.00,
+        paidAmount: 0.00,
+        paymentStatus: 'Unpaid',
+        paymentMethod: 'Direct Bank Transfer',
+        deliveryStatus: 'Kiln Firing',
+        deliveryDate: '2026-07-01',
+        carrierName: 'Viettel Post Cargo',
+        trackingCode: 'VTPOST-882201_A',
+        shippingAddress: 'Phường Bến Nghé, Quận 1, Tp. Hồ Chí Minh, Vietnam',
+        notes: 'Hỏa biến nhủ chảy vàng góc lục lục.'
+      }
+    ];
+  });
+
+  // Sync state changes with localStorage
+  useEffect(() => {
+    localStorage.setItem('pottery_current_role', currentRole);
+  }, [currentRole]);
+
+  useEffect(() => {
+    localStorage.setItem('pottery_language', language);
+  }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem('pottery_products', JSON.stringify(products));
+  }, [products]);
+
+  useEffect(() => {
+    localStorage.setItem('pottery_cart', JSON.stringify(cart));
+  }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem('pottery_inquiry', JSON.stringify(inquiry));
+  }, [inquiry]);
+
+  useEffect(() => {
+    localStorage.setItem('pottery_saved_ids', JSON.stringify(savedProductIds));
+  }, [savedProductIds]);
+
+  useEffect(() => {
+    localStorage.setItem('pottery_trade_applications', JSON.stringify(tradeApplications));
+  }, [tradeApplications]);
+
+  useEffect(() => {
+    localStorage.setItem('pottery_custom_briefs', JSON.stringify(customBriefs));
+  }, [customBriefs]);
+
+  useEffect(() => {
+    localStorage.setItem('pottery_registered_users', JSON.stringify(registeredUsers));
+  }, [registeredUsers]);
+
+  useEffect(() => {
+    localStorage.setItem('pottery_newsletter_subscribers', JSON.stringify(newsletterSubscribers));
+  }, [newsletterSubscribers]);
+
+  useEffect(() => {
+    localStorage.setItem('pottery_orders', JSON.stringify(orders));
+  }, [orders]);
 
   // Sync scroll positioning on route change
   useEffect(() => {

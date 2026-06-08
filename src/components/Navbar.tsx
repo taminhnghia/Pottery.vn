@@ -242,7 +242,7 @@ export default function Navbar({
               {t('B2B Trade', 'Đối tác B2B')}
             </button>
 
-            <span className="h-4 w-px bg-stone-200"></span>
+            <span className="h-4 w-px bg-stone-200 -mx-3 xl:-mx-4"></span>
 
             <button onClick={() => onNavigate('/export-capabilities')} className={linkClass('/export-capabilities')}>
               {t('Capabilities & OEM', 'Năng lực & Chế tác')}
