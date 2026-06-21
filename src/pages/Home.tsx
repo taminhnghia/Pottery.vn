@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Product, UserRole } from '../types';
-import { ArrowRight, Sparkles, CheckCircle, Shield, FileSpreadsheet, Layers, Send, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Sparkles, CheckCircle, Shield, FileSpreadsheet, Layers, Send, Download, ChevronLeft, ChevronRight, Search, ShoppingCart } from 'lucide-react';
 
 interface HomeProps {
   products: Product[];
@@ -29,6 +29,33 @@ export default function Home({
   isSaved
 }: HomeProps) {
   const t = (en: string, vi: string) => (language === 'en' ? en : vi);
+
+  // States for real-time search with debounce
+  const [inputValue, setInputValue] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Debouncing search term input with a delay of 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(inputValue);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [inputValue]);
+
+  // Memoized search results by matching name, SKU, category, finish, material or colourDirection
+  const searchedProducts = useMemo(() => {
+    if (!searchTerm.trim()) return [];
+    const term = searchTerm.toLowerCase().trim();
+    return products.filter(
+      p =>
+        p.name.toLowerCase().includes(term) ||
+        p.SKU.toLowerCase().includes(term) ||
+        p.category.toLowerCase().includes(term) ||
+        p.finish.toLowerCase().includes(term) ||
+        p.material.toLowerCase().includes(term) ||
+        p.colourDirection.toLowerCase().includes(term)
+    );
+  }, [products, searchTerm]);
 
   // Hero carousel state
   const [activeSlide, setActiveSlide] = useState(0);
@@ -256,8 +283,150 @@ export default function Home({
         </div>
       </section>
 
-      {/* SECTION 2: CUSTOMER PATH SELECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+      {/* SECTION 1.5: HOME PAGE PRODUCTS SEARCH BAR */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 -mt-8 relative z-30">
+        <div className="max-w-2xl mx-auto bg-white p-4 rounded-xl border border-pottery-ivory shadow-md">
+          <div className="relative">
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              className="w-full bg-stone-50 border border-stone-200 rounded-lg pl-11 pr-10 py-3 text-xs sm:text-sm focus:outline-none focus:border-pottery-terracotta focus:ring-2 focus:ring-pottery-terracotta/10 transition-all duration-300"
+              placeholder={t(
+                'Search catalog by name, model, SKU, finish...',
+                'Tìm kiếm catalog theo tên, mã SKU, kiểu dáng, chất men...'
+              )}
+            />
+            {inputValue && (
+              <button
+                onClick={() => {
+                  setInputValue('');
+                  setSearchTerm('');
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 focus:outline-none cursor-pointer p-1"
+                title={t('Clear search', 'Xóa tìm kiếm')}
+              >
+                <span className="text-xs font-bold font-sans">✕</span>
+              </button>
+            )}
+            {inputValue !== searchTerm && (
+              <div className="absolute right-12 top-1/2 -translate-y-1/2 flex items-center">
+                <span className="w-3.5 h-3.5 border-2 border-stone-300 border-t-pottery-terracotta rounded-full animate-spin"></span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {searchTerm.trim() ? (
+        /* Search Results Panel on Home Page */
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-8 min-h-[450px]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-pottery-ivory pb-4 gap-2">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-serif text-pottery-charcoal">
+                {t('Home Search Results', 'Kết quả tìm kiếm trang chủ')}
+              </h2>
+              <p className="text-xs text-stone-500 mt-1">
+                {t(
+                  `Found ${searchedProducts.length} matching pottery items for "${searchTerm}"`,
+                  `Tìm thấy ${searchedProducts.length} sản phẩm gốm phù hợp định dạng cho "${searchTerm}"`
+                )}
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setInputValue('');
+                setSearchTerm('');
+              }}
+              className="text-xs font-mono font-bold text-pottery-terracotta hover:text-pottery-deepclay flex items-center gap-1 self-start sm:self-auto cursor-pointer"
+            >
+              ← {t('Close Search & Show Home Page', 'Đóng Tìm kiếm & Hiện Trang chủ')}
+            </button>
+          </div>
+
+          {searchedProducts.length === 0 ? (
+            <div className="text-center py-16 space-y-3 bg-stone-50 rounded-lg border border-stone-150">
+              <Sparkles className="mx-auto text-stone-300" size={36} />
+              <p className="text-stone-500 text-sm font-medium">
+                {t('No matching pottery items found on catalog.', 'Không tìm thấy sản phẩm gốm phù hợp trong danh mục.')}
+              </p>
+              <button
+                onClick={() => {
+                  setInputValue('');
+                  setSearchTerm('');
+                }}
+                className="mt-2 bg-pottery-terracotta hover:bg-pottery-deepclay text-white px-5 py-2 text-xs font-semibold uppercase tracking-wider rounded cursor-pointer"
+              >
+                {t('Clear Search', 'Xóa tìm kiếm')}
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              {searchedProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="border border-stone-200 p-4 rounded bg-white hover:shadow-xs transition duration-200 flex flex-col justify-between"
+                >
+                  <div>
+                    <div
+                      className="aspect-square w-full overflow-hidden bg-stone-50 mb-3 cursor-pointer relative rounded hover-zoom"
+                      onClick={() => onNavigate(`/products`)}
+                    >
+                      <img src={product.mainImage} alt={product.name} className="w-full h-full object-cover" />
+                      <span className="absolute top-2 left-2 bg-stone-900/60 text-white font-mono text-[8px] px-1.5 py-0.5 rounded">
+                        {product.SKU}
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] text-stone-400 font-mono tracking-wider uppercase block">{product.category}</span>
+                        <span className="text-[9px] text-stone-500">{product.indoorOutdoor.split(' ')[0]}</span>
+                      </div>
+                      <h3
+                        onClick={() => onNavigate(`/products`)}
+                        className="text-xs font-bold text-stone-800 hover:text-pottery-terracotta cursor-pointer truncate"
+                      >
+                        {product.name}
+                      </h3>
+                      <p className="text-[10px] text-stone-500 truncate">{product.finish} • {product.colourDirection}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-2 mt-3 border-t border-stone-50 flex items-center justify-between">
+                    <div>
+                      {currentRole === 'guest' || currentRole === 'trade_applicant' ? (
+                        <span className="text-[10px] text-stone-400 italic">
+                          {t('Trade price locked', 'Giá B2B: Khóa')}
+                        </span>
+                      ) : currentRole === 'approved_b2b_buyer' ? (
+                        <span className="text-[11px] text-emerald-600 font-mono font-bold">
+                          US$ {(15 + (parseInt(product.id.substring(2)) || 1) * 2).toFixed(2)} (FOB)
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-stone-700 font-mono font-bold">
+                          {product.retailPrice ? `US$ ${product.retailPrice.toFixed(2)}` : t('Upon Enquiry', 'Giá: Liên hệ')}
+                        </span>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => onAddToInquiry(product)}
+                      className="p-1 px-2.5 rounded bg-pottery-terracotta hover:bg-pottery-deepclay text-white text-[10px] uppercase font-mono font-bold flex items-center gap-1 transition-all duration-200 cursor-pointer"
+                    >
+                      <ShoppingCart size={11} />
+                      <span>{currentRole === 'retail_customer' ? t('Cart', '+ Giỏ') : t('Inquiry', '+ Thư')}</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      ) : (
+        <>
+          {/* SECTION 2: CUSTOMER PATH SELECTION */}
+          <section className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center space-y-4 max-w-xl mx-auto mb-10">
           <span className="text-xs uppercase tracking-[0.2em] font-bold text-pottery-terracotta block font-mono">
             {t('EXPLORATION PATHWAYS', 'LỰA CHỌN PHÂN LUỒNG')}
@@ -1129,6 +1298,9 @@ export default function Home({
           </div>
         </div>
       </section>
+
+        </>
+      )}
 
     </div>
   );

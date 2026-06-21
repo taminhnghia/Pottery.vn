@@ -35,6 +35,7 @@ export default function Products({
   const t = (en: string, vi: string) => (language === 'en' ? en : vi);
 
   // States
+  const [inputValue, setInputValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All');
   const [selectedApplication, setSelectedApplication] = useState('All');
@@ -45,6 +46,14 @@ export default function Products({
   
   // Mobile drawer state
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  // Debouncing search term input with a delay of 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(inputValue);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [inputValue]);
 
   // Helper for mock FOB pricing generation
   const getFobPriceRange = (product: Product) => {
@@ -246,14 +255,31 @@ export default function Products({
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
           <input
             type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-stone-50 border border-stone-200 rounded pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-pottery-terracotta"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            className="w-full bg-stone-50 border border-stone-200 rounded pl-10 pr-10 py-2 text-xs focus:outline-none focus:border-pottery-terracotta"
             placeholder={t(
               'Search catalog by SKU, name, material, color...',
               'Tìm kiếm theo SKU, tên sản phẩm, chất thô địa tầng...'
             )}
           />
+          {inputValue && (
+            <button
+              onClick={() => {
+                setInputValue('');
+                setSearchTerm('');
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 focus:outline-none cursor-pointer p-1"
+              title={t('Clear search', 'Xóa tìm kiếm')}
+            >
+              <span className="text-xs font-bold">✕</span>
+            </button>
+          )}
+          {inputValue !== searchTerm && (
+            <div className="absolute right-10 top-1/2 -translate-y-1/2 flex items-center">
+              <span className="w-3 h-3 border-2 border-stone-300 border-t-pottery-terracotta rounded-full animate-spin"></span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between">
@@ -294,6 +320,7 @@ export default function Products({
                 setSelectedSize('All');
                 setSelectedFinish('All');
                 setSelectedColour('All');
+                setInputValue('');
                 setSearchTerm('');
               }}
               className="text-[10px] text-stone-400 font-mono hover:text-pottery-terracotta"
@@ -444,6 +471,7 @@ export default function Products({
                   setSelectedSize('All');
                   setSelectedFinish('All');
                   setSelectedColour('All');
+                  setInputValue('');
                   setSearchTerm('');
                 }}
                 className="bg-pottery-terracotta text-white px-4 py-2 text-xs uppercase tracking-wider font-semibold rounded"
